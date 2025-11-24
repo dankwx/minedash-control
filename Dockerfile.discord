@@ -1,0 +1,14 @@
+FROM node:18-slim
+
+WORKDIR /app
+
+# Copiar package.json e instalar dependências
+COPY package.json .
+RUN npm install
+
+# Copiar o código do servidor
+COPY server.js .
+
+EXPOSE 3011
+
+CMD ["npm", "start"]

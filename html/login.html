@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Discord Auth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            color: #5865F2;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .members-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .member-item:hover {
+            background: #f5f5f5;
+            transform: translateX(5px);
+        }
+
+        .member-item.selected {
+            background: #5865F2;
+            color: white;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .member-status {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-online { background: #43b581; }
+        .status-idle { background: #faa61a; }
+        .status-dnd { background: #f04747; }
+        .status-offline { background: #747f8d; }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #5865F2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .login-btn:hover {
+            background: #4752c4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
+        }
+
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #5865F2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .status-info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🔐 Discord Auth</h1>
+            <p>Selecione seu perfil do Discord para continuar</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Carregando membros do Discord...</p>
+        </div>
+
+        <div id="login-form" style="display: none;">
+            <div class="search-box">
+                <input type="text" id="search" placeholder="🔍 Buscar membro...">
+            </div>
+
+            <div class="members-list" id="members-list">
+                <!-- Membros serão carregados aqui -->
+            </div>
+
+            <button class="login-btn" id="login-btn" disabled>
+                Continuar com Discord
+            </button>
+
+            <div id="status-message"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedMember = null;
+        let allMembers = [];
+        let authToken = null;
+        let checkInterval = null;
+
+        // Carregar membros do Discord
+        async function loadMembers() {
+            try {
+                // Tentar localhost primeiro, depois IP fixo
+                const apiUrl = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:3011' 
+                    : 'http://10.150.135.158:3011';
+                
+                const response = await fetch(`${apiUrl}/members`);
+                const data = await response.json();
+                
+                allMembers = data.members.sort((a, b) => {
+                    // Ordenar por status (online primeiro) e depois por nome
+                    const statusOrder = { online: 0, idle: 1, dnd: 2, offline: 3 };
+                    if (statusOrder[a.status] !== statusOrder[b.status]) {
+                        return statusOrder[a.status] - statusOrder[b.status];
+                    }
+                    return a.displayName.localeCompare(b.displayName);
+                });
+
+                renderMembers(allMembers);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('login-form').style.display = 'block';
+            } catch (error) {
+                console.error('Erro ao carregar membros:', error);
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: red;">❌ Erro ao carregar membros do Discord</p>
+                    <p style="font-size: 12px;">Verifique se o bot está online</p>
+                `;
+            }
+        }
+
+        function renderMembers(members) {
+            const membersList = document.getElementById('members-list');
+            membersList.innerHTML = '';
+
+            members.forEach(member => {
+                const div = document.createElement('div');
+                div.className = 'member-item';
+                div.innerHTML = `
+                    <img class="member-avatar" src="${member.avatar}" alt="${member.displayName}">
+                    <div class="member-info">
+                        <div class="member-name">${member.displayName}</div>
+                        <div class="member-status">
+                            <span class="status-dot status-${member.status}"></span>
+                            ${getStatusText(member.status)}
+                        </div>
+                    </div>
+                `;
+                
+                div.addEventListener('click', () => selectMember(member, div));
+                membersList.appendChild(div);
+            });
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                online: 'Online',
+                idle: 'Ausente',
+                dnd: 'Não Perturbe',
+                offline: 'Offline'
+            };
+            return texts[status] || 'Desconhecido';
+        }
+
+        function selectMember(member, element) {
+            // Remover seleção anterior
+            document.querySelectorAll('.member-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+
+            // Adicionar seleção atual
+            element.classList.add('selected');
+            selectedMember = member;
+            
+            // Habilitar botão
+            document.getElementById('login-btn').disabled = false;
+        }
+
+        // Busca de membros
+        document.getElementById('search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = allMembers.filter(m => 
+                m.displayName.toLowerCase().includes(query) ||
+                m.name.toLowerCase().includes(query)
+            );
+            renderMembers(filtered);
+        });
+
+        // Botão de login
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            if (!selectedMember) return;
+
+            const btn = document.getElementById('login-btn');
+            const statusDiv = document.getElementById('status-message');
+            
+            btn.disabled = true;
+            btn.textContent = 'Enviando solicitação...';
+
+            try {
+                const apiUrl = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:3011' 
+                    : 'http://10.150.135.158:3011';
+                
+                // Solicitar autenticação
+                const response = await fetch(`${apiUrl}/auth/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: selectedMember.id,
+                        userName: selectedMember.displayName,
+                        userIp: window.location.hostname
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    authToken = data.token;
+                    
+                    statusDiv.className = 'status-message status-info';
+                    statusDiv.innerHTML = `
+                        <strong>✉️ Mensagem enviada no Discord!</strong><br>
+                        Verifique o canal <strong>#general</strong> e responda com "Sim" para confirmar.
+                    `;
+                    
+                    btn.textContent = 'Aguardando confirmação...';
+                    
+                    // Iniciar verificação periódica
+                    startChecking();
+                } else {
+                    throw new Error(data.error || 'Erro desconhecido');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = `❌ Erro: ${error.message}`;
+                btn.disabled = false;
+                btn.textContent = 'Continuar com Discord';
+            }
+        });
+
+        function startChecking() {
+            let attempts = 0;
+            const maxAttempts = 60; // 5 minutos (60 * 5s)
+
+            checkInterval = setInterval(async () => {
+                attempts++;
+
+                try {
+                    const apiUrl = window.location.hostname === 'localhost' 
+                        ? 'http://localhost:3011' 
+                        : 'http://10.150.135.158:3011';
+                    
+                    const response = await fetch(`${apiUrl}/auth/check/${authToken}`);
+                    const data = await response.json();
+
+                    if (data.verified) {
+                        clearInterval(checkInterval);
+                        
+                        // Criar sessão no servidor Python (usa porta 3010)
+                        const serverUrl = window.location.origin; // Usa o mesmo host/porta da página atual
+                        const sessionResponse = await fetch(`${serverUrl}/api/create-session`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                token: authToken,
+                                userId: selectedMember.id,
+                                userName: selectedMember.displayName
+                            })
+                        });
+
+                        const sessionData = await sessionResponse.json();
+
+                        if (sessionData.success) {
+                            document.getElementById('status-message').className = 'status-message status-success';
+                            document.getElementById('status-message').innerHTML = `
+                                <strong>✅ Autenticação bem-sucedida!</strong><br>
+                                Redirecionando...
+                            `;
+
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 1500);
+                        }
+                    } else if (data.expired) {
+                        clearInterval(checkInterval);
+                        
+                        document.getElementById('status-message').className = 'status-message status-error';
+                        document.getElementById('status-message').textContent = '⏱️ Tempo limite excedido. Tente novamente.';
+                        
+                        document.getElementById('login-btn').disabled = false;
+                        document.getElementById('login-btn').textContent = 'Continuar com Discord';
+                    }
+
+                    if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        
+                        document.getElementById('status-message').className = 'status-message status-error';
+                        document.getElementById('status-message').textContent = '⏱️ Tempo limite excedido. Tente novamente.';
+                        
+                        document.getElementById('login-btn').disabled = false;
+                        document.getElementById('login-btn').textContent = 'Continuar com Discord';
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar autenticação:', error);
+                }
+            }, 5000); // Verificar a cada 5 segundos
+        }
+
+        // Carregar membros ao iniciar
+        loadMembers();
+    </script>
+</body>
+</html>

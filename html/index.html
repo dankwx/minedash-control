@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mhassahropolis • Portal</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg-top: #fafafa;
+            --bg-bottom: #dcd7c8;
+            --accent: #050505;
+            --text-main: #070707;
+            --text-muted: #5f5a50;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(0, 0, 0, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background: linear-gradient(135deg, var(--bg-top), var(--bg-bottom));
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .grain {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath d='M0 0h200v1H0zM0 0h1v200H0z' fill='rgba(0,0,0,0.05)'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-decoration: none;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            transition: color 0.3s ease;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        main {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            padding: 3rem 4rem;
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            backdrop-filter: blur(18px) saturate(140%);
+            background: var(--card-bg);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            width: min(560px, 80vw);
+        }
+
+        .eyebrow {
+            font-size: 0.75rem;
+            letter-spacing: 0.5rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        h1 {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -0.08em;
+            color: var(--text-main);
+        }
+
+        .mantra {
+            margin: 1.25rem auto 0;
+            font-size: 1rem;
+            max-width: 40ch;
+            line-height: 1.8;
+            color: var(--text-muted);
+        }
+
+        .cta-row {
+            margin-top: 2.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.85rem 1.65rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.3rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            background: transparent;
+            transition: all 0.3s ease;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .cta:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+        }
+
+        .cta.secondary {
+            opacity: 0.7;
+        }
+
+        #floaters {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floater {
+            position: absolute;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.3rem;
+            opacity: 0.9;
+            pointer-events: auto;
+            text-decoration: none;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            backdrop-filter: blur(6px) saturate(110%);
+            background: rgba(255, 255, 255, 0.85);
+            transition: all 0.3s ease;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .floater:hover {
+            border-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem 1.5rem;
+            }
+
+            .logo {
+                font-size: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                font-size: 0.8rem;
+            }
+
+            main {
+                padding: 2rem 2.5rem;
+            }
+
+            .eyebrow {
+                font-size: 0.65rem;
+                letter-spacing: 0.35rem;
+            }
+
+            .cta-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grain"></div>
+
+    <header>
+        <a href="/" class="logo">Mhassahropolis</a>
+        <nav class="nav-links">
+            <a href="/mine">Mine</a>
+            <a href="#sobre">Sobre</a>
+            <a href="#contato">Contato</a>
+        </nav>
+    </header>
+
+    <main>
+        <span class="eyebrow">tranquil orbital zone</span>
+        <h1>Mhassahropolis</h1>
+        <p class="mantra">
+            Um portal suspenso no tempo, onde palavras flutuam em harmonia. 
+            Cada elemento encontra seu lugar natural no espaço.
+        </p>
+        <div class="cta-row">
+            <a class="cta" href="/mine">Entrar em /mine</a>
+            <a class="cta secondary" href="#explorar">Explorar</a>
+        </div>
+    </main>
+
+    <div id="floaters"></div>
+
+    <script>
+        const floatersHost = document.getElementById("floaters");
+
+        const floatingWords = [
+            { text: "mine", link: "/mine", x: 12, y: 15 },
+            { text: "zen", link: null, x: 85, y: 20 },
+            { text: "fluxo", link: null, x: 8, y: 75 },
+            { text: "pulso", link: null, x: 88, y: 65 },
+            { text: "respiro", link: null, x: 15, y: 45 },
+            { text: "órbita", link: null, x: 78, y: 82 },
+            { text: "eco", link: null, x: 50, y: 85 }
+        ];
+
+        floatingWords.forEach((item) => {
+            const el = document.createElement(item.link ? "a" : "span");
+            el.className = "floater";
+            el.textContent = item.text;
+            el.style.fontSize = `${(Math.random() * 1.5 + 0.9).toFixed(2)}rem`;
+            el.style.left = `${item.x}%`;
+            el.style.top = `${item.y}%`;
+            
+            if (item.link) {
+                el.href = item.link;
+            }
+
+            floatersHost.appendChild(el);
+        });
+    </script>
+</body>
+</html>

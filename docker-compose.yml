@@ -1,0 +1,37 @@
+version: '3.8'
+
+networks:
+  pias-network:
+    driver: bridge
+
+services:
+  mcstatusweb:
+    build: .
+    container_name: mcstatus-web
+    ports:
+      - "3010:3010"
+    volumes:
+      - ./html:/app/html
+      - ./html/imagens:/app/html/imagens
+      - /home/ubuntu/atm-10-pias/logs:/minecraft-logs:ro
+    networks:
+      - pias-network
+    depends_on:
+      - discord-bot
+    restart: unless-stopped
+
+  discord-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.discord
+    container_name: discord-bot
+    ports:
+      - "3011:3011"
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_SERVER_ID=${DISCORD_SERVER_ID}
+      - DISCORD_CHANNEL_ID=${DISCORD_CHANNEL_ID}
+    networks:
+      - pias-network
+    restart: unless-stopped
+

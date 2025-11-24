@@ -1,0 +1,17 @@
+# Variáveis de ambiente com credenciais
+.env
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Banco de dados local
+*.db
+html/*.db
+html/downloads/servidor-pias.zip
