@@ -40,6 +40,15 @@ def init_db():
             caption TEXT
         )
     ''')
+    # Tabela para avisos dispensados pelos usuários
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS dismissed_notices (
+            user_id TEXT,
+            notice_id TEXT,
+            dismissed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, notice_id)
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -108,6 +117,10 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/api/discord/members':
             print("[GET] Chamando handle_discord_members")
             self.handle_discord_members()
+            return
+        
+        if self.path.startswith('/api/notices/dismissed/'):
+            self.handle_get_dismissed_notices()
             return
 
         if self.path == '/teste' or self.path == '/teste/':
@@ -180,6 +193,10 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         
         if self.path == '/api/logout':
             self.handle_logout()
+            return
+        
+        if self.path == '/api/notices/dismiss':
+            self.handle_dismiss_notice()
             return
         
         self.send_error(404)
@@ -873,6 +890,76 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             
         except Exception as e:
             print(f"[ERROR] Erro ao fazer logout: {e}")
+            response = json.dumps({"success": False, "error": str(e)})
+            self.send_response(500)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(response.encode("utf-8"))
+    
+    def handle_get_dismissed_notices(self):
+        """Retorna os avisos dispensados por um usuário"""
+        try:
+            # Extrair userId da URL: /api/notices/dismissed/{userId}
+            user_id = self.path.split('/')[-1]
+            
+            conn = sqlite3.connect(DB_FILE)
+            cursor = conn.cursor()
+            cursor.execute('SELECT notice_id FROM dismissed_notices WHERE user_id = ?', (user_id,))
+            rows = cursor.fetchall()
+            conn.close()
+            
+            dismissed = [row[0] for row in rows]
+            
+            response = json.dumps({"success": True, "dismissed": dismissed})
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(response.encode("utf-8"))
+            
+        except Exception as e:
+            print(f"[ERROR] Erro ao buscar avisos dispensados: {e}")
+            response = json.dumps({"success": False, "error": str(e)})
+            self.send_response(500)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(response.encode("utf-8"))
+    
+    def handle_dismiss_notice(self):
+        """Marca um aviso como dispensado permanentemente para o usuário"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            user_id = data.get('userId')
+            notice_id = data.get('noticeId')
+            
+            if not user_id or not notice_id:
+                raise ValueError("userId e noticeId são obrigatórios")
+            
+            conn = sqlite3.connect(DB_FILE)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT OR REPLACE INTO dismissed_notices (user_id, notice_id)
+                VALUES (?, ?)
+            ''', (user_id, notice_id))
+            conn.commit()
+            conn.close()
+            
+            print(f"[NOTICE] Aviso {notice_id} dispensado pelo usuário {user_id}")
+            
+            response = json.dumps({"success": True})
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(response.encode("utf-8"))
+            
+        except Exception as e:
+            print(f"[ERROR] Erro ao dispensar aviso: {e}")
             response = json.dumps({"success": False, "error": str(e)})
             self.send_response(500)
             self.send_header("Content-type", "application/json")

@@ -2073,6 +2073,147 @@
             background: var(--button-bg);
             color: var(--button-text);
         }
+        
+        /* Modal de Avisos/Notificações */
+        .notice-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .notice-modal.active {
+            display: flex;
+        }
+        
+        .notice-box {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            padding: 0;
+            max-width: 550px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: hidden;
+            animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .notice-header {
+            background: var(--button-bg);
+            color: var(--button-text);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .notice-title {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        
+        .notice-priority {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            padding: 4px 8px;
+            border: 1px solid currentColor;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .notice-priority.high {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+        
+        .notice-priority.medium {
+            color: #ffd93d;
+            border-color: #ffd93d;
+        }
+        
+        .notice-priority.low {
+            color: var(--pulse-color);
+            border-color: var(--pulse-color);
+        }
+        
+        .notice-content {
+            padding: 24px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        
+        .notice-content h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+        
+        .notice-content ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .notice-content li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .notice-content li:last-child {
+            border-bottom: none;
+        }
+        
+        .notice-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background: var(--bg-primary);
+        }
+        
+        .notice-btn {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .notice-btn-close {
+            background: transparent;
+            color: var(--text-primary);
+        }
+        
+        .notice-btn-close:hover {
+            background: var(--border-light);
+        }
+        
+        .notice-btn-dismiss {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border-color: var(--button-bg);
+        }
+        
+        .notice-btn-dismiss:hover {
+            background: var(--button-hover-bg);
+            color: var(--button-hover-text);
+        }
     </style>
 </head>
 <body>
@@ -2369,7 +2510,147 @@
         </div>
     </div>
 
+    <!-- Modal de Avisos -->
+    <div class="notice-modal" id="noticeModal">
+        <div class="notice-box">
+            <div class="notice-header">
+                <div class="notice-title" id="noticeTitle">[ AVISO ]</div>
+                <div class="notice-priority" id="noticePriority">NEW</div>
+            </div>
+            <div class="notice-content" id="noticeContent">
+                <!-- Conteúdo dinâmico -->
+            </div>
+            <div class="notice-footer">
+                <button class="notice-btn notice-btn-close" id="noticeCloseBtn">Fechar</button>
+                <button class="notice-btn notice-btn-dismiss" id="noticeDismissBtn">Não Ver Mais</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // === Sistema de Avisos/Notificações ===
+        const NOTICES = {
+            current: "notice-2025-11-25", // ID do aviso atual
+            notices: {
+                "notice-2025-11-25": {
+                    title: "Atualizações / Novidades",
+                    content: `
+                        <div style="text-align: center; padding: 20px;">
+                            <h2 style="font-family: 'Courier New'; margin-bottom: 20px;">NOVIDADES</h2>
+                            <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+                                <li>Novos temas, porem sao feios nao sei fazer</li>
+                                <li>Sistema de login por Discord</li>
+                            </ul>
+                            <p style="margin-top: 30px; font-size: 12px; opacity: 0.7;">
+                                Versão 2.0 - Novembro 2025
+                            </p>
+                        </div>
+                    `,
+                    priority: "high"
+                }
+            }
+        };
+        
+        let loggedUserId = null; // Será preenchido após verificar autenticação
+        
+        async function checkAndShowNotice() {
+            if (!loggedUserId) return;
+            
+            const currentNoticeId = NOTICES.current;
+            if (!currentNoticeId || !NOTICES.notices[currentNoticeId]) return;
+            
+            try {
+                // Verificar se o usuário já dispensou este aviso
+                const response = await fetch(`/api/notices/dismissed/${loggedUserId}`);
+                const data = await response.json();
+                
+                if (data.success && data.dismissed.includes(currentNoticeId)) {
+                    // Usuário já clicou em "Não ver mais" para este aviso
+                    return;
+                }
+                
+                // Mostrar o aviso
+                showNotice(currentNoticeId);
+            } catch (error) {
+                console.error('Erro ao verificar avisos:', error);
+                // Em caso de erro, mostra o aviso mesmo assim
+                showNotice(currentNoticeId);
+            }
+        }
+        
+        function showNotice(noticeId) {
+            const notice = NOTICES.notices[noticeId];
+            if (!notice) return;
+            
+            const modal = document.getElementById('noticeModal');
+            const titleEl = document.getElementById('noticeTitle');
+            const contentEl = document.getElementById('noticeContent');
+            const priorityEl = document.getElementById('noticePriority');
+            
+            titleEl.textContent = notice.title;
+            contentEl.innerHTML = notice.content;
+            
+            // Configurar badge de prioridade
+            priorityEl.textContent = notice.priority === 'high' ? 'NOVO' : 
+                                     notice.priority === 'medium' ? 'INFO' : 'DICA';
+            priorityEl.className = 'notice-priority ' + notice.priority;
+            
+            // Armazenar o ID do aviso atual para usar no dismiss
+            modal.dataset.noticeId = noticeId;
+            
+            modal.classList.add('active');
+        }
+        
+        function closeNotice() {
+            const modal = document.getElementById('noticeModal');
+            modal.classList.remove('active');
+        }
+        
+        async function dismissNotice() {
+            const modal = document.getElementById('noticeModal');
+            const noticeId = modal.dataset.noticeId;
+            
+            if (!loggedUserId || !noticeId) {
+                closeNotice();
+                return;
+            }
+            
+            try {
+                await fetch('/api/notices/dismiss', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: loggedUserId,
+                        noticeId: noticeId
+                    })
+                });
+            } catch (error) {
+                console.error('Erro ao dispensar aviso:', error);
+            }
+            
+            closeNotice();
+        }
+        
+        // Event listeners para o modal de avisos
+        document.getElementById('noticeCloseBtn').addEventListener('click', closeNotice);
+        document.getElementById('noticeDismissBtn').addEventListener('click', dismissNotice);
+        
+        // Fechar modal ao clicar fora
+        document.getElementById('noticeModal').addEventListener('click', (e) => {
+            if (e.target.id === 'noticeModal') {
+                closeNotice();
+            }
+        });
+        
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('noticeModal').classList.contains('active')) {
+                closeNotice();
+            }
+        });
+        
         // === Sistema de Autenticação Discord ===
         let authToken = null;
         let authCheckInterval = null;
@@ -2384,10 +2665,29 @@
                 
                 if (!data.authenticated) {
                     showLoginModal();
+                } else {
+                    // Usuário autenticado - buscar info e verificar avisos
+                    await loadUserInfo();
                 }
             } catch (error) {
                 console.error('Erro ao verificar autenticação:', error);
                 showLoginModal();
+            }
+        }
+        
+        // Carregar informações do usuário logado
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/user-info');
+                const data = await response.json();
+                
+                if (data.authenticated && data.userId) {
+                    loggedUserId = data.userId;
+                    // Verificar e mostrar avisos após identificar o usuário
+                    checkAndShowNotice();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar info do usuário:', error);
             }
         }
         
