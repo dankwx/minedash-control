@@ -1092,6 +1092,37 @@
             font-weight: bold;
         }
 
+        .bluemap-map-selector {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .bluemap-map-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s, transform 0.12s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bluemap-map-btn:hover {
+            background: var(--button-hover-bg);
+            color: var(--button-hover-text);
+            transform: translateY(-1px);
+        }
+
+        .bluemap-map-btn.active {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border-color: var(--button-bg);
+        }
+
         .bluemap-close-btn {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -2475,6 +2506,10 @@
         <div class="bluemap-container">
             <div class="bluemap-header">
                 <div class="bluemap-title">[ MAPA DO SERVIDOR ]</div>
+                <div class="bluemap-map-selector">
+                    <button class="bluemap-map-btn active" id="mapBtn1" data-map="1">[ BASE ]</button>
+                    <button class="bluemap-map-btn" id="mapBtn2" data-map="2">[ QUARTOS ]</button>
+                </div>
                 <button class="bluemap-close-btn" id="bluemapCloseBtn">[ ESC ]</button>
             </div>
             <div class="bluemap-content">
@@ -3478,10 +3513,36 @@
         const bluemapModal = document.getElementById('bluemapModal');
         const bluemapCloseBtn = document.getElementById('bluemapCloseBtn');
         const bluemapIframe = document.getElementById('bluemapIframe');
+        const mapBtn1 = document.getElementById('mapBtn1');
+        const mapBtn2 = document.getElementById('mapBtn2');
+        
+        // URLs dos diferentes mapas do BlueMap
+        const mapUrls = {
+            '1': 'http://10.150.135.158:8100/#world:-8554:79:7109:51:2.22:0.97:0:0:perspective',
+            '2': 'http://10.150.135.158:8100/#world:-8529:79:7114:0:1.36:1.02:0:0:free' // Altere para a URL do seu segundo mapa
+        };
+        
+        let currentMap = '1';
+        
+        function switchMap(mapId) {
+            currentMap = mapId;
+            bluemapIframe.src = mapUrls[mapId];
+            
+            // Atualiza os botões ativos
+            document.querySelectorAll('.bluemap-map-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (mapId === '1') {
+                mapBtn1.classList.add('active');
+            } else if (mapId === '2') {
+                mapBtn2.classList.add('active');
+            }
+        }
         
         function openBluemapModal() {
             // Define a URL do BlueMap no iframe quando o modal é aberto
-            bluemapIframe.src = 'http://10.150.135.158:8100/#world:-8554:79:7109:51:2.22:0.97:0:0:perspective';
+            bluemapIframe.src = mapUrls[currentMap];
             bluemapModal.classList.add('active');
         }
         
@@ -3493,6 +3554,10 @@
         
         bluemapBtn.addEventListener('click', openBluemapModal);
         bluemapCloseBtn.addEventListener('click', closeBluemapModal);
+        
+        // Event listeners para os botões de mapa
+        mapBtn1.addEventListener('click', () => switchMap('1'));
+        mapBtn2.addEventListener('click', () => switchMap('2'));
         
         // Fechar modal ao clicar fora
         bluemapModal.addEventListener('click', (e) => {
