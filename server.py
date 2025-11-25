@@ -140,10 +140,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_mine()
             return
 
-        # Keep /desativado as a route that serves the old index.html
-        if self.path == '/desativado' or self.path == '/desativado/':
-            self.handle_index()
-            return
+        # Removed legacy /desativado route (index.html deprecated)
 
         if self.path == '/mine' or self.path == '/mine/':
             # Keep /mine working as before (also serves the mine.html page)
@@ -272,14 +269,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data_json.encode("utf-8"))
 
-    def handle_index(self):
-        with open("index.html", "r", encoding="utf-8") as f:
-            html = f.read()
-
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(html.encode("utf-8"))
+    # Legacy index page removed; use `mine.html` as the primary page.
 
     def handle_mine(self):
         with open("mine.html", "r", encoding="utf-8") as f:
