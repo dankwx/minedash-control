@@ -551,10 +551,8 @@ body {
 }
 
 .header-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
-    align-items: end;
+    display: block;
+    width: 100%;
 }
 
 .title {
@@ -2237,4 +2235,200 @@ input[type="file"] {
 .notice-btn-dismiss:hover {
     background: var(--button-hover-bg);
     color: var(--button-hover-text);
+}
+
+/* ============================================
+   TOP PLAYERS SECTION
+   ============================================ */
+
+.top-players-section {
+    padding: 32px 16px;
+}
+
+.top-players-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.top-players-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+}
+
+.players-online-indicator {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.top-players-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.player-card {
+    position: relative;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.3s ease;
+}
+
+.player-card:hover {
+    border-color: var(--text-primary);
+    opacity: 0.9;
+}
+
+.player-rank {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 24px;
+    height: 24px;
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.player-online-dot {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 8px;
+    height: 8px;
+}
+
+.pulse-ring {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00ff00;
+    animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    opacity: 0.75;
+}
+
+.pulse-core {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00ff00;
+}
+
+@keyframes pulse-animation {
+    0%, 100% {
+        opacity: 0.75;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+.player-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.player-avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.player-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    image-rendering: pixelated;
+    display: block;
+}
+
+.avatar-border {
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.player-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.player-nickname {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.player-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.stat-icon {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    stroke: var(--text-secondary);
+}
+
+.player-progress {
+    margin-top: 12px;
+    height: 4px;
+    background: var(--border-light);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.player-progress-bar {
+    height: 100%;
+    background: var(--text-primary);
+    opacity: 0.6;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .top-players-grid {
+        grid-template-columns: 1fr;
+    }
 }
