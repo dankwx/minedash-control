@@ -1126,13 +1126,99 @@ async function loadDiscordMembers() {
     }
 }
 
+// Top Players Functionality
+async function loadTopPlayers() {
+    const topPlayersGrid = document.getElementById('topPlayersGrid');
+    const topPlayersOnline = document.getElementById('topPlayersOnline');
+    
+    try {
+        const response = await fetch('/api/top-players');
+        const data = await response.json();
+        
+        if (!data.success || !data.players || data.players.length === 0) {
+            topPlayersGrid.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    Nenhum jogador encontrado ainda...
+                </div>
+            `;
+            topPlayersOnline.textContent = '0 online';
+            return;
+        }
+        
+        const players = data.players;
+        const onlineCount = data.online_count || 0;
+        
+        // Atualizar contador de online
+        topPlayersOnline.textContent = `${onlineCount} online agora`;
+        
+        // Renderizar apenas os top 4 jogadores
+        const topFour = players.slice(0, 4);
+        
+        topPlayersGrid.innerHTML = topFour.map(player => `
+            <div class="player-card">
+                <div class="player-rank">${player.rank}</div>
+                ${player.is_online ? `
+                    <div class="player-online-dot">
+                        <span class="pulse-ring"></span>
+                        <span class="pulse-core"></span>
+                    </div>
+                ` : ''}
+                <div class="player-content">
+                    <div class="player-avatar-wrapper">
+                        <img src="https://mc-heads.net/avatar/${player.name}/48" 
+                             alt="${player.name}'s head" 
+                             class="player-avatar"
+                             onerror="this.src='https://mc-heads.net/avatar/steve/48'">
+                        <div class="avatar-border"></div>
+                    </div>
+                    <div class="player-info">
+                        <h3 class="player-nickname">${player.name}</h3>
+                        <div class="player-stats">
+                            <div class="player-stat">
+                                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>${player.playtime}</span>
+                            </div>
+                            <div class="player-stat">
+                                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+                                    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>${player.last_seen}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-progress">
+                    <div class="player-progress-bar" style="width: ${player.progress}%;"></div>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading top players:', error);
+        topPlayersGrid.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #666;">
+                Erro ao carregar jogadores...
+            </div>
+        `;
+        topPlayersOnline.textContent = '-- online';
+    }
+}
+
 // Initialize
 loadStatus();
 loadGallery();
 updateDateTime();
 updateSystemMetrics();
 loadDiscordMembers();
+loadTopPlayers();
 setInterval(loadStatus, 5000);
 setInterval(updateDateTime, 60000);
 setInterval(updateSystemMetrics, 2000);
 setInterval(loadDiscordMembers, 30000); // Atualiza membros a cada 30 segundos
+setInterval(loadTopPlayers, 15000); // Atualiza top players a cada 15 segundos

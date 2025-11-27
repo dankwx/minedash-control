@@ -1,0 +1,130 @@
+{
+  "db_path": "html/images.db",
+  "tables": {
+    "dismissed_notices": {
+      "create_sql": "CREATE TABLE dismissed_notices (\n            user_id TEXT,\n            notice_id TEXT,\n            dismissed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n            PRIMARY KEY (user_id, notice_id)\n        )",
+      "row_count": 2,
+      "rows": [
+        {
+          "user_id": "268826484850819072",
+          "notice_id": "notice-2024-11-25",
+          "dismissed_at": "2025-11-25 18:49:33"
+        },
+        {
+          "user_id": "268826484850819072",
+          "notice_id": "notice-2025-11-25",
+          "dismissed_at": "2025-11-25 19:18:41"
+        }
+      ]
+    },
+    "image_captions": {
+      "create_sql": "CREATE TABLE image_captions (\n            filename TEXT PRIMARY KEY,\n            caption TEXT\n        )",
+      "row_count": 7,
+      "rows": [
+        {
+          "filename": "92f3efdf5ab247d3816c42b1ced2be3f.png",
+          "caption": ""
+        },
+        {
+          "filename": "d9a1db8c66e34bb6a15f32eb732b9a1b.png",
+          "caption": "nao joguei nada foi so pra testar ta"
+        },
+        {
+          "filename": "b5c6bd69b74f4d549125953f8e22e4df.png",
+          "caption": "quarto do alysson"
+        },
+        {
+          "filename": "b5c57ddf325542dc861f43280a23c460.png",
+          "caption": "quarto lucas"
+        },
+        {
+          "filename": "bb68a2ae046a49b5b7a42d969b27e2c4.png",
+          "caption": "quarto allan"
+        },
+        {
+          "filename": "39bb039c760f4664a4511bd93ec862ca.png",
+          "caption": "quarto daniel"
+        },
+        {
+          "filename": "1a7862857deb42699b4ac6c886be9dca.png",
+          "caption": "quarto daniel v2"
+        }
+      ]
+    },
+    "player_sessions": {
+      "create_sql": "CREATE TABLE player_sessions (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        player_name TEXT,\n        join_time TEXT,\n        leave_time TEXT,\n        duration_seconds INTEGER\n    )",
+      "row_count": 6,
+      "rows": [
+        {
+          "id": 1,
+          "player_name": "BITalucard",
+          "join_time": "2025-11-25T16:25:25.632080",
+          "leave_time": "2025-11-25T18:25:25.632080",
+          "duration_seconds": 7500
+        },
+        {
+          "id": 2,
+          "player_name": "AllaNaroK",
+          "join_time": "2025-11-25T16:25:25.632080",
+          "leave_time": "2025-11-25T18:25:25.632080",
+          "duration_seconds": 14400
+        },
+        {
+          "id": 3,
+          "player_name": "HermeticPrince",
+          "join_time": "2025-11-25T16:25:25.632080",
+          "leave_time": "2025-11-25T18:25:25.632080",
+          "duration_seconds": 3600
+        },
+        {
+          "id": 4,
+          "player_name": "BITalucard",
+          "join_time": "2025-11-25T16:32:36.579803",
+          "leave_time": "2025-11-25T18:32:36.579803",
+          "duration_seconds": 7500
+        },
+        {
+          "id": 5,
+          "player_name": "AllaNaroK",
+          "join_time": "2025-11-25T16:32:36.579803",
+          "leave_time": "2025-11-25T18:32:36.579803",
+          "duration_seconds": 14400
+        },
+        {
+          "id": 6,
+          "player_name": "HermeticPrince",
+          "join_time": "2025-11-25T16:32:36.579803",
+          "leave_time": "2025-11-25T18:32:36.579803",
+          "duration_seconds": 3600
+        }
+      ]
+    },
+    "player_stats": {
+      "create_sql": "CREATE TABLE player_stats (\n        player_name TEXT PRIMARY KEY,\n        total_playtime_seconds INTEGER DEFAULT 0,\n        last_join_time TEXT,\n        last_leave_time TEXT,\n        is_online INTEGER DEFAULT 0\n    )",
+      "row_count": 3,
+      "rows": [
+        {
+          "player_name": "BITalucard",
+          "total_playtime_seconds": 15000,
+          "last_join_time": "2025-11-26T14:32:36.579803",
+          "last_leave_time": null,
+          "is_online": 1
+        },
+        {
+          "player_name": "AllaNaroK",
+          "total_playtime_seconds": 28800,
+          "last_join_time": "2025-11-26T14:32:36.579803",
+          "last_leave_time": "2025-11-26T16:32:36.579803",
+          "is_online": 0
+        },
+        {
+          "player_name": "HermeticPrince",
+          "total_playtime_seconds": 7200,
+          "last_join_time": "2025-11-26T14:32:36.579803",
+          "last_leave_time": "2025-11-26T16:32:36.579803",
+          "is_online": 0
+        }
+      ]
+    }
+  }
+}

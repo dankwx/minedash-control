@@ -122,6 +122,10 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith('/api/notices/dismissed/'):
             self.handle_get_dismissed_notices()
             return
+        
+        if self.path == '/api/top-players':
+            self.handle_top_players()
+            return
 
         if self.path == '/teste' or self.path == '/teste/':
             # Página de teste protegida
@@ -268,6 +272,122 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-type", "application/json")
         self.end_headers()
         self.wfile.write(data_json.encode("utf-8"))
+
+    def handle_top_players(self):
+        """Busca os top players do banco de dados player_sessions"""
+        try:
+            from datetime import datetime, timedelta
+            
+            conn = sqlite3.connect(DB_FILE)
+            cursor = conn.cursor()
+            
+            # Buscar jogadores agrupados por nome com total de tempo jogado
+            cursor.execute('''
+                SELECT 
+                    player_name,
+                    SUM(duration_seconds) as total_seconds,
+                    MAX(leave_time) as last_seen,
+                    COUNT(*) as session_count
+                FROM player_sessions
+                WHERE player_name IS NOT NULL
+                GROUP BY player_name
+                ORDER BY total_seconds DESC
+            ''')
+            
+            players_data = cursor.fetchall()
+            conn.close()
+            
+            # Buscar jogadores online agora
+            try:
+                server = JavaServer("10.150.135.158", 25565)
+                status = server.status()
+                online_players = []
+                if status.players.sample:
+                    online_players = [player.name for player in status.players.sample]
+            except:
+                online_players = []
+            
+            # Processar dados dos jogadores
+            players = []
+            for idx, (name, total_seconds, last_seen, session_count) in enumerate(players_data, 1):
+                # Converter segundos para horas e minutos
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                
+                # Processar última vez online
+                try:
+                    last_seen_dt = datetime.fromisoformat(last_seen.replace('Z', '+00:00'))
+                    now = datetime.now(last_seen_dt.tzinfo) if last_seen_dt.tzinfo else datetime.now()
+                    
+                    # Calcular diferença de tempo
+                    time_diff = now - last_seen_dt
+                    
+                    if time_diff < timedelta(minutes=5):
+                        last_seen_str = "Agora"
+                    elif time_diff < timedelta(hours=1):
+                        mins = int(time_diff.total_seconds() / 60)
+                        last_seen_str = f"Há {mins} min"
+                    elif time_diff < timedelta(days=1):
+                        hrs = int(time_diff.total_seconds() / 3600)
+                        last_seen_str = f"Há {hrs}h"
+                    elif time_diff < timedelta(days=2):
+                        last_seen_str = "Ontem"
+                    else:
+                        last_seen_str = last_seen_dt.strftime("%d/%m/%Y")
+                except:
+                    last_seen_str = "Desconhecido"
+                
+                # Verificar se está online
+                is_online = name in online_players
+                
+                # Calcular barra de progresso (baseado no total de horas, max 500h = 100%)
+                progress = min(100, (hours / 500) * 100)
+                
+                players.append({
+                    "rank": idx,
+                    "name": name,
+                    "playtime": f"{hours}h {minutes}m",
+                    "playtime_seconds": total_seconds,
+                    "last_seen": last_seen_str,
+                    "is_online": is_online,
+                    "progress": round(progress, 1),
+                    "session_count": session_count
+                })
+            
+            # Contar quantos estão online
+            online_count = sum(1 for p in players if p["is_online"])
+            
+            response_data = {
+                "success": True,
+                "players": players,
+                "online_count": online_count,
+                "total_players": len(players)
+            }
+            
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps(response_data).encode("utf-8"))
+            
+        except Exception as e:
+            print(f"Erro ao buscar top players: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            response_data = {
+                "success": False,
+                "error": str(e),
+                "players": [],
+                "online_count": 0,
+                "total_players": 0
+            }
+            
+            self.send_response(500)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps(response_data).encode("utf-8"))
 
     # Legacy index page removed; use `mine.html` as the primary page.
 
