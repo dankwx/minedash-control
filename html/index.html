@@ -1,1 +1,69 @@
-tstts
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cyberclub</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=geist-sans:400,500,600,700" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="main-content">
+        <h1>cyberclub</h1>
+
+        <div class="pcs-container" id="pcs-container">
+            <!-- PCs will be inserted here by JS -->
+        </div>
+
+        <div class="image-container">
+            <img src="../usar.jpg" alt="Low poly girl">
+        </div>
+
+        <nav>
+            <a href="mine.html">mine</a>
+            <a href="/about">about</a>
+        </nav>
+    </main>
+
+    <div class="footer">•••</div>
+
+    <script>
+        const pcs = [
+            { name: "alysson", ip: "192.168.1.10", online: true },
+            { name: "allan", ip: "192.168.1.11", online: true },
+            { name: "daniel", ip: "192.168.1.12", online: false },
+            { name: "lucas", ip: "192.168.1.13", online: true },
+        ];
+
+        const container = document.getElementById('pcs-container');
+
+        pcs.forEach(pc => {
+            const pcDiv = document.createElement('div');
+            pcDiv.className = 'pc';
+
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'pc-status';
+
+            const dot = document.createElement('span');
+            dot.className = `status-dot ${pc.online ? 'online' : 'offline'}`;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'pc-name';
+            nameSpan.textContent = pc.name;
+
+            statusDiv.appendChild(dot);
+            statusDiv.appendChild(nameSpan);
+
+            const ipSpan = document.createElement('span');
+            ipSpan.className = 'pc-ip';
+            ipSpan.textContent = pc.ip;
+
+            pcDiv.appendChild(statusDiv);
+            pcDiv.appendChild(ipSpan);
+
+            container.appendChild(pcDiv);
+        });
+    </script>
+</body>
+</html>

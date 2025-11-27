@@ -17,9 +17,8 @@ IMAGES_DIR = "html/imagens"
 # Caminho do log do servidor Minecraft (dentro do container Docker)
 MINECRAFT_LOG_PATH = "/minecraft-logs/latest.log"
 
-# Sistema de sessões simples
-# { session_id: { userId, userName, timestamp } }
-sessions = {}
+# NOTA: Sistema de sessões agora usa SQLite (tabela user_sessions)
+# Não é mais armazenado em memória
 
 # Criar diretório de imagens se não existir
 os.makedirs(IMAGES_DIR, exist_ok=True)
@@ -49,6 +48,17 @@ def init_db():
             PRIMARY KEY (user_id, notice_id)
         )
     ''')
+    # Tabela para sessões de autenticação
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_sessions (
+            session_id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            user_name TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_access TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at TIMESTAMP NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -57,7 +67,7 @@ init_db()
 class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def check_auth(self):
-        """Verifica se o usuário está autenticado via cookie"""
+        """Verifica se o usuário está autenticado via cookie e banco de dados"""
         cookie_header = self.headers.get('Cookie', '')
         print(f"[AUTH] Verificando autenticação... Cookie: {cookie_header}")
         
@@ -66,16 +76,48 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             session_id = cookie['session_id'].value
             print(f"[AUTH] Session ID encontrado: {session_id}")
             
-            if session_id in sessions:
-                # Verificar se sessão não expirou (24 horas)
-                if time.time() - sessions[session_id]['timestamp'] < 24 * 60 * 60:
-                    print(f"[AUTH] ✅ Sessão válida para: {sessions[session_id]['userName']}")
-                    return True
+            try:
+                conn = sqlite3.connect(DB_FILE)
+                cursor = conn.cursor()
+                
+                # Buscar sessão no banco de dados
+                cursor.execute('''
+                    SELECT user_id, user_name, expires_at 
+                    FROM user_sessions 
+                    WHERE session_id = ?
+                ''', (session_id,))
+                
+                result = cursor.fetchone()
+                
+                if result:
+                    user_id, user_name, expires_at = result
+                    
+                    # Verificar se a sessão expirou
+                    expires_timestamp = time.mktime(time.strptime(expires_at, '%Y-%m-%d %H:%M:%S'))
+                    
+                    if time.time() < expires_timestamp:
+                        # Atualizar last_access
+                        cursor.execute('''
+                            UPDATE user_sessions 
+                            SET last_access = CURRENT_TIMESTAMP 
+                            WHERE session_id = ?
+                        ''', (session_id,))
+                        conn.commit()
+                        
+                        print(f"[AUTH] ✅ Sessão válida para: {user_name}")
+                        conn.close()
+                        return True
+                    else:
+                        print(f"[AUTH] ❌ Sessão expirada")
+                        # Remover sessão expirada
+                        cursor.execute('DELETE FROM user_sessions WHERE session_id = ?', (session_id,))
+                        conn.commit()
                 else:
-                    print(f"[AUTH] ❌ Sessão expirada")
-                    del sessions[session_id]
-            else:
-                print(f"[AUTH] ❌ Session ID não encontrado no servidor")
+                    print(f"[AUTH] ❌ Session ID não encontrado no banco")
+                
+                conn.close()
+            except Exception as e:
+                print(f"[AUTH] ❌ Erro ao verificar sessão: {e}")
         else:
             print(f"[AUTH] ❌ Nenhum session_id no cookie")
         
@@ -83,6 +125,22 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         print(f"[GET] Requisição recebida: {self.path}")
+
+        # --- NOVA ROTA /inicio ---
+        if self.path == '/inicio' or self.path == '/inicio/':
+            # 1. Verifica se está autenticado
+            if not self.check_auth():
+                print("[AUTH] Acesso negado a /inicio. Redirecionando para /")
+                # 2. Se NÃO estiver autenticado, faz o redirect (302) para a raiz
+                self.send_response(302)
+                self.send_header('Location', '/')
+                self.end_headers()
+                return
+            
+            # 3. Se estiver autenticado, carrega o index.html
+            self.handle_inicio()
+            return
+        # -------------------------
 
         if self.path == '/api/status':
             self.handle_status()
@@ -400,6 +458,19 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(html.encode("utf-8"))
     
+    def handle_inicio(self):
+        try:
+            # Certifique-se que index.html está na pasta html/
+            with open("index.html", "r", encoding="utf-8") as f:
+                html = f.read()
+
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(html.encode("utf-8"))
+        except FileNotFoundError:
+            self.send_error(404, "Arquivo index.html nao encontrado na pasta html/")
+    
     def handle_login_page(self):
         with open("login.html", "r", encoding="utf-8") as f:
             html = f.read()
@@ -437,13 +508,25 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             if 'session_id' in cookie:
                 session_id = cookie['session_id'].value
                 
-                if session_id in sessions:
-                    session = sessions[session_id]
-                    # Verificar se sessão não expirou (24 horas)
-                    if time.time() - session['timestamp'] < 24 * 60 * 60:
-                        userId = session['userId']
-                        userName = session['userName']
-                        
+                # Buscar sessão no banco de dados
+                conn = sqlite3.connect(DB_FILE)
+                cursor = conn.cursor()
+                
+                cursor.execute('''
+                    SELECT user_id, user_name, expires_at 
+                    FROM user_sessions 
+                    WHERE session_id = ?
+                ''', (session_id,))
+                
+                result = cursor.fetchone()
+                conn.close()
+                
+                if result:
+                    user_id, user_name, expires_at = result
+                    
+                    # Verificar se sessão não expirou
+                    expires_timestamp = time.mktime(time.strptime(expires_at, '%Y-%m-%d %H:%M:%S'))
+                    if time.time() < expires_timestamp:
                         # Buscar avatar do Discord
                         try:
                             import urllib.request
@@ -454,21 +537,21 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                             avatar_url = None
                             if 'members' in members_data:
                                 for member in members_data['members']:
-                                    if member['id'] == userId:
+                                    if member['id'] == user_id:
                                         avatar_url = member.get('avatar')
                                         break
                             
                             response_data = {
                                 "authenticated": True,
-                                "userId": userId,
-                                "userName": userName,
+                                "userId": user_id,
+                                "userName": user_name,
                                 "avatar": avatar_url
                             }
                         except:
                             response_data = {
                                 "authenticated": True,
-                                "userId": userId,
-                                "userName": userName,
+                                "userId": user_id,
+                                "userName": user_name,
                                 "avatar": None
                             }
                         
@@ -511,26 +594,36 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             if not token or not userId or not userName:
                 raise ValueError("Dados incompletos")
             
-            # Criar sessão
+            # Criar sessão no banco de dados
             session_id = str(uuid.uuid4())
-            sessions[session_id] = {
-                'userId': userId,
-                'userName': userName,
-                'timestamp': time.time()
-            }
+            
+            conn = sqlite3.connect(DB_FILE)
+            cursor = conn.cursor()
+            
+            # Calcular data de expiração (7 dias a partir de agora)
+            expires_at = time.strftime('%Y-%m-%d %H:%M:%S', 
+                                      time.localtime(time.time() + (7 * 24 * 60 * 60)))
+            
+            cursor.execute('''
+                INSERT INTO user_sessions (session_id, user_id, user_name, expires_at)
+                VALUES (?, ?, ?, ?)
+            ''', (session_id, userId, userName, expires_at))
+            
+            conn.commit()
+            conn.close()
             
             response = json.dumps({"success": True, "session_id": session_id})
             
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
-            # Definir cookie (SameSite=None para funcionar cross-origin)
-            self.send_header("Set-Cookie", f"session_id={session_id}; Path=/; Max-Age=86400; SameSite=Lax")
+            # Definir cookie (7 dias = 604800 segundos)
+            self.send_header("Set-Cookie", f"session_id={session_id}; Path=/; Max-Age=604800; SameSite=Lax")
             self.end_headers()
             self.wfile.write(response.encode("utf-8"))
             
-            print(f"[SESSION] ✅ Sessão criada: {session_id}")
-            print(f"[SESSION] Total de sessões ativas: {len(sessions)}")
+            print(f"[SESSION] ✅ Sessão criada no banco: {session_id}")
+            print(f"[SESSION] Expira em: {expires_at}")
             
         except Exception as e:
             print(f"[SESSION] ❌ Erro ao criar sessão: {e}")
@@ -932,17 +1025,27 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             print(f"[VERIFY] Resposta do Discord Bot: {auth_data}")
             
             if auth_data.get('verified'):
-                # Criar sessão
+                # Criar sessão no banco de dados
                 if not userId or not userName:
                     print(f"[VERIFY] ❌ userId ou userName não fornecidos!")
                     raise ValueError("userId e userName são obrigatórios")
                 
                 session_id = str(uuid.uuid4())
-                sessions[session_id] = {
-                    'userId': userId,
-                    'userName': userName,
-                    'timestamp': time.time()
-                }
+                
+                conn = sqlite3.connect(DB_FILE)
+                cursor = conn.cursor()
+                
+                # Calcular data de expiração (7 dias)
+                expires_at = time.strftime('%Y-%m-%d %H:%M:%S', 
+                                          time.localtime(time.time() + (7 * 24 * 60 * 60)))
+                
+                cursor.execute('''
+                    INSERT INTO user_sessions (session_id, user_id, user_name, expires_at)
+                    VALUES (?, ?, ?, ?)
+                ''', (session_id, userId, userName, expires_at))
+                
+                conn.commit()
+                conn.close()
                 
                 response_data = json.dumps({
                     "verified": True,
@@ -952,7 +1055,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
-                self.send_header("Set-Cookie", f"session_id={session_id}; Path=/; Max-Age=86400; SameSite=Lax")
+                self.send_header("Set-Cookie", f"session_id={session_id}; Path=/; Max-Age=604800; SameSite=Lax")
                 self.end_headers()
                 self.wfile.write(response_data.encode("utf-8"))
                 
@@ -978,16 +1081,22 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(response.encode("utf-8"))
     
     def handle_logout(self):
-        """Remove a sessão do usuário"""
+        """Remove a sessão do usuário do banco de dados"""
         try:
             cookie_header = self.headers.get('Cookie', '')
             cookie = SimpleCookie(cookie_header)
             
             if 'session_id' in cookie:
                 session_id = cookie['session_id'].value
-                if session_id in sessions:
-                    print(f"[LOGOUT] Removendo sessão: {session_id}")
-                    del sessions[session_id]
+                
+                # Remover sessão do banco de dados
+                conn = sqlite3.connect(DB_FILE)
+                cursor = conn.cursor()
+                cursor.execute('DELETE FROM user_sessions WHERE session_id = ?', (session_id,))
+                conn.commit()
+                conn.close()
+                
+                print(f"[LOGOUT] Sessão removida do banco: {session_id}")
             
             response = json.dumps({"success": True})
             self.send_response(200)
