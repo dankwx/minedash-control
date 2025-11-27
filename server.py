@@ -150,14 +150,6 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_system_metrics()
             return
 
-        if self.path == '/api/images':
-            self.handle_images_list()
-            return
-        
-        if self.path.startswith('/api/caption/'):
-            self.handle_get_caption()
-            return
-        
         if self.path == '/api/logs':
             self.handle_logs()
             return
@@ -230,13 +222,6 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         return
     
     def do_POST(self):
-        if self.path == '/api/upload':
-            self.handle_upload()
-            return
-        
-        if self.path.startswith('/api/caption/'):
-            self.handle_update_caption()
-            return
         
         if self.path == '/api/create-session':
             self.handle_create_session()
@@ -261,10 +246,6 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.send_error(404)
     
     def do_DELETE(self):
-        if self.path.startswith('/api/images/'):
-            self.handle_delete()
-            return
-        
         self.send_error(404)
     
     def do_OPTIONS(self):
@@ -670,220 +651,6 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
     
-    def handle_images_list(self):
-        try:
-            images = []
-            images_path = Path("imagens")
-            
-            if images_path.exists():
-                image_files = [f.name for f in images_path.iterdir() 
-                         if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp']]
-                
-                # Buscar legendas do banco de dados
-                conn = sqlite3.connect(DB_FILE)
-                cursor = conn.cursor()
-                
-                for filename in image_files:
-                    cursor.execute('SELECT caption FROM image_captions WHERE filename = ?', (filename,))
-                    result = cursor.fetchone()
-                    caption = result[0] if result else ""
-                    images.append({"filename": filename, "caption": caption})
-                
-                conn.close()
-            
-            data_json = json.dumps(images)
-            
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(data_json.encode("utf-8"))
-        except Exception as e:
-            print(f"Erro ao listar imagens: {e}")
-            self.send_response(500)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
-    
-    def handle_upload(self):
-        try:
-            # Verificar limite de 100 imagens
-            images_path = Path("imagens")
-            if images_path.exists():
-                image_count = len([f for f in images_path.iterdir() 
-                                  if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp']])
-                if image_count >= 100:
-                    raise ValueError("Limite de 100 imagens atingido")
-            
-            content_type = self.headers['Content-Type']
-            if not content_type.startswith('multipart/form-data'):
-                self.send_error(400, "Content-Type deve ser multipart/form-data")
-                return
-            
-            # Parse form data
-            form = cgi.FieldStorage(
-                fp=self.rfile,
-                headers=self.headers,
-                environ={
-                    'REQUEST_METHOD': 'POST',
-                    'CONTENT_TYPE': content_type,
-                }
-            )
-            
-            if 'image' not in form:
-                raise ValueError("Nenhuma imagem enviada")
-            
-            file_item = form['image']
-            
-            if not file_item.file:
-                raise ValueError("Arquivo inválido")
-            
-            # Gerar nome único
-            file_ext = Path(file_item.filename).suffix.lower()
-            if file_ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
-                raise ValueError("Formato de imagem não suportado")
-            
-            unique_filename = f"{uuid.uuid4().hex}{file_ext}"
-            file_path = Path("imagens") / unique_filename
-            
-            # Salvar arquivo
-            with open(file_path, 'wb') as f:
-                f.write(file_item.file.read())
-            
-            # Responder com sucesso
-            response = json.dumps({"success": True, "filename": unique_filename})
-            
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
-            
-            print(f"Imagem salva: {unique_filename}")
-            
-        except Exception as e:
-            print(f"Erro ao fazer upload: {e}")
-            response = json.dumps({"success": False, "error": str(e)})
-            
-            self.send_response(400)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
-    
-    def handle_delete(self):
-        try:
-            # Extrair nome do arquivo da URL
-            filename = self.path.split('/')[-1]
-            
-            # Validar nome do arquivo
-            if not filename or '..' in filename or '/' in filename:
-                raise ValueError("Nome de arquivo inválido")
-            
-            # Verificar se o arquivo existe
-            file_path = Path("imagens") / filename
-            
-            if not file_path.exists():
-                raise ValueError("Imagem não encontrada")
-            
-            # Verificar extensão
-            if file_path.suffix.lower() not in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
-                raise ValueError("Arquivo não é uma imagem válida")
-            
-            # Deletar arquivo
-            file_path.unlink()
-            
-            # Deletar legenda do banco de dados
-            conn = sqlite3.connect(DB_FILE)
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM image_captions WHERE filename = ?', (filename,))
-            conn.commit()
-            conn.close()
-            
-            # Responder com sucesso
-            response = json.dumps({"success": True, "message": "Imagem excluída com sucesso"})
-            
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
-            
-            print(f"Imagem excluída: {filename}")
-            
-        except Exception as e:
-            print(f"Erro ao excluir imagem: {e}")
-            response = json.dumps({"success": False, "error": str(e)})
-            
-            self.send_response(400)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
-    
-    def handle_get_caption(self):
-        try:
-            filename = self.path.split('/')[-1]
-            
-            if not filename or '..' in filename or '/' in filename:
-                raise ValueError("Nome de arquivo inválido")
-            
-            conn = sqlite3.connect(DB_FILE)
-            cursor = conn.cursor()
-            cursor.execute('SELECT caption FROM image_captions WHERE filename = ?', (filename,))
-            result = cursor.fetchone()
-            conn.close()
-            
-            caption = result[0] if result else ""
-            
-            response = json.dumps({"success": True, "caption": caption})
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
-            
-        except Exception as e:
-            print(f"Erro ao buscar legenda: {e}")
-            response = json.dumps({"success": False, "error": str(e)})
-            self.send_response(400)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
-    
-    def handle_update_caption(self):
-        try:
-            filename = self.path.split('/')[-1]
-            
-            if not filename or '..' in filename or '/' in filename:
-                raise ValueError("Nome de arquivo inválido")
-            
-            # Ler o corpo da requisição
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode('utf-8'))
-            
-            caption = data.get('caption', '')
-            
-            # Atualizar ou inserir legenda no banco
-            conn = sqlite3.connect(DB_FILE)
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT OR REPLACE INTO image_captions (filename, caption)
-                VALUES (?, ?)
-            ''', (filename, caption))
-            conn.commit()
-            conn.close()
-            
-            response = json.dumps({"success": True, "message": "Legenda atualizada"})
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
-            
-            print(f"Legenda atualizada para {filename}: {caption}")
-            
-        except Exception as e:
-            print(f"Erro ao atualizar legenda: {e}")
-            response = json.dumps({"success": False, "error": str(e)})
-            self.send_response(400)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(response.encode("utf-8"))
     
     def handle_logs(self):
         try:

@@ -110,9 +110,6 @@
                             </div>
                         </div>
                         <div class="header-buttons">
-                            <button class="header-upload-btn" id="uploadBtn">
-                                [ CARREGAR_IMAGEM ]
-                            </button>
                             <button class="header-upload-btn" id="logsBtn">
                                 [ VER_LOGS ]
                             </button>
@@ -160,7 +157,6 @@
                                 </div>
                             </div>
                         </div>
-                        <input type="file" id="fileInput" accept="image/*">
                     </div>
                     
                     <div class="header-content">
@@ -180,21 +176,6 @@
                         </div>
                     </div>
                 </header>
-                
-                <!-- Gallery -->
-                <div id="galleryContainer">
-                    <div class="gallery-empty" id="emptyState">
-                        <div class="gallery-empty-icon">↑</div>
-                        <div class="gallery-empty-text">Ainda sem imagens</div>
-                    </div>
-                    <div class="gallery" id="galleryGrid" style="display: none;"></div>
-                    
-                    <div class="pagination" id="pagination" style="display: none;">
-                        <button id="prevBtn">← Prev</button>
-                        <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
-                        <button id="nextBtn">Next →</button>
-                    </div>
-                </div>
             </div>
         </main>
 
@@ -221,35 +202,6 @@
                 <div class="members-loading">Loading members...</div>
             </div>
         </aside>
-    </div>
-    
-    <!-- Modal de confirmação -->
-    <div class="confirm-modal" id="confirmModal">
-        <div class="confirm-box">
-            <div class="confirm-title">[ Confirmar Exclusão ]</div>
-            <div class="confirm-message">Tem certeza que deseja excluir esta imagem?<br/>Esta ação não pode ser desfeita.</div>
-            <div class="confirm-buttons">
-                <button class="confirm-btn confirm-no" id="confirmNo">Cancelar</button>
-                <button class="confirm-btn confirm-yes" id="confirmYes">Excluir</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal de edição de legenda -->
-    <div class="caption-modal" id="captionModal">
-        <div class="caption-box">
-            <div class="confirm-title">[ Editar Comentário ]</div>
-            <textarea class="caption-input" id="captionInput" placeholder="Digite um comentário para esta imagem..."></textarea>
-            <div class="confirm-buttons">
-                <button class="confirm-btn confirm-no" id="captionCancel">Cancelar</button>
-                <button class="confirm-btn confirm-yes" id="captionSave">Salvar</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal de imagem ampliada -->
-    <div class="image-modal" id="imageModal">
-        <img src="" alt="Imagem ampliada" id="modalImage">
     </div>
     
     <!-- Modal de Logs -->
