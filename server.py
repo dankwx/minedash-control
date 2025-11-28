@@ -180,16 +180,25 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/teste' or self.path == '/teste/':
             # Página de teste protegida
             if not self.check_auth():
-                self.handle_login_page()
+                self.redirect_to_login()
                 return
             self.handle_teste()
+            return
+
+        if self.path == '/login' or self.path == '/login/':
+            # Login page - accessible to everyone
+            # If already authenticated, redirect to home
+            if self.check_auth():
+                self.redirect_to_home()
+                return
+            self.handle_login_page()
             return
 
         if self.path == '/':
             # Serve the mine page as the new root (COM autenticação)
             if not self.check_auth():
-                # Se não autenticado, serve mine.html que mostrará o modal
-                self.handle_mine()
+                # Redirect to login page
+                self.redirect_to_login()
                 return
             self.handle_mine()
             return
@@ -460,6 +469,18 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(html.encode("utf-8"))
+
+    def redirect_to_login(self):
+        """Redirect user to login page"""
+        self.send_response(302)
+        self.send_header("Location", "/login")
+        self.end_headers()
+
+    def redirect_to_home(self):
+        """Redirect user to home page"""
+        self.send_response(302)
+        self.send_header("Location", "/")
+        self.end_headers()
     
     def handle_teste(self):
         with open("teste.html", "r", encoding="utf-8") as f:

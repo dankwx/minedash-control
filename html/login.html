@@ -3,84 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Discord Auth</title>
+    <title>Login - MHASSAHROPOLIS</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.bunny.net/css?family=geist-mono:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --background: #0d0d0d;
+            --foreground: #d4d4d4;
+            --card: #1a1a1a;
+            --muted: #2a2a2a;
+            --muted-foreground: #737373;
+            --border-light: rgba(255,255,255,0.06);
+            --accent: #4ade80;
+            --online: #4ade80;
+            --offline: #525252;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        ::selection {
+            background: rgba(74, 222, 128, 0.3);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Geist Mono', 'SF Mono', Monaco, monospace;
+            background: var(--background);
+            color: var(--foreground);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
         }
 
         .login-container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 420px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
         .logo {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 400;
+            font-style: italic;
+            color: var(--foreground);
+            letter-spacing: 0.05em;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--muted-foreground);
+        }
+
+        .login-box {
+            background: var(--card);
+            border: 1px solid var(--border-light);
+            padding: 32px;
+        }
+
+        .login-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--foreground);
+            margin-bottom: 12px;
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .logo h1 {
-            font-size: 32px;
-            color: #5865F2;
-            margin-bottom: 10px;
-        }
-
-        .logo p {
-            color: #666;
-            font-size: 14px;
+        .login-description {
+            font-size: 11px;
+            color: var(--muted-foreground);
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 24px;
         }
 
         .members-list {
-            max-height: 400px;
+            max-height: 320px;
             overflow-y: auto;
-            margin-bottom: 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 10px;
+            border-left: 1px solid rgba(74, 222, 128, 0.2);
+            padding-left: 12px;
+        }
+
+        .members-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .members-list::-webkit-scrollbar-track {
+            background: var(--muted);
+        }
+
+        .members-list::-webkit-scrollbar-thumb {
+            background: var(--muted-foreground);
+            border-radius: 2px;
         }
 
         .member-item {
             display: flex;
             align-items: center;
+            gap: 12px;
             padding: 12px;
-            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 8px;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .member-item:last-child {
+            border-bottom: none;
         }
 
         .member-item:hover {
-            background: #f5f5f5;
-            transform: translateX(5px);
-        }
-
-        .member-item.selected {
-            background: #5865F2;
-            color: white;
+            background: rgba(255,255,255,0.03);
         }
 
         .member-avatar {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            margin-right: 15px;
-            object-fit: cover;
         }
 
         .member-info {
@@ -88,363 +145,266 @@
         }
 
         .member-name {
-            font-weight: 600;
-            font-size: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--foreground);
         }
 
         .member-status {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-top: 2px;
+            font-size: 10px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 5px;
+        .member-status.online {
+            color: var(--online);
         }
 
-        .status-online { background: #43b581; }
-        .status-idle { background: #faa61a; }
-        .status-dnd { background: #f04747; }
-        .status-offline { background: #747f8d; }
-
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: #5865F2;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .login-btn:hover {
-            background: #4752c4;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
-        }
-
-        .login-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading {
+        .loading-message {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 32px;
+            color: var(--muted-foreground);
+            font-size: 11px;
         }
 
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #5865F2;
+        /* Auth Waiting State */
+        .auth-waiting {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .auth-waiting-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--foreground);
+            margin-bottom: 20px;
+        }
+
+        .auth-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--muted);
+            border-top-color: var(--accent);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
             margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .status-message {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
+        .auth-waiting-message {
+            font-size: 11px;
+            color: var(--muted-foreground);
+            line-height: 1.6;
+            margin-bottom: 24px;
         }
 
-        .status-info {
-            background: #e3f2fd;
-            color: #1976d2;
+        .auth-cancel-btn {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            padding: 10px 24px;
+            font-family: 'Geist Mono', monospace;
+            font-size: 11px;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .status-success {
-            background: #e8f5e9;
-            color: #388e3c;
+        .auth-cancel-btn:hover {
+            color: var(--foreground);
+            border-color: var(--foreground);
         }
 
-        .status-error {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .search-box {
-            margin-bottom: 15px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #5865F2;
+        .footer {
+            position: fixed;
+            bottom: 2rem;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 0.2em;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">
-            <h1>🔐 Discord Auth</h1>
-            <p>Selecione seu perfil do Discord para continuar</p>
+        <div class="login-header">
+            <h1 class="logo">MHASSAHROPOLIS</h1>
         </div>
 
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Carregando membros do Discord...</p>
-        </div>
-
-        <div id="login-form" style="display: none;">
-            <div class="search-box">
-                <input type="text" id="search" placeholder="🔍 Buscar membro...">
+        <div class="login-box">
+            <div id="loginContent">
+                <div class="login-title">[ AUTENTICAÇÃO ]</div>
+                <div class="login-description">
+                    Selecione seu perfil do Discord para acessar o site.<br>
+                    Uma mensagem será enviada no servidor para confirmar sua identidade.
+                </div>
+                <div class="members-list" id="membersList">
+                    <div class="loading-message">Carregando membros...</div>
+                </div>
             </div>
 
-            <div class="members-list" id="members-list">
-                <!-- Membros serão carregados aqui -->
+            <div id="authWaiting" style="display: none;">
+                <div class="auth-waiting">
+                    <div class="auth-waiting-title">[ AGUARDANDO CONFIRMAÇÃO ]</div>
+                    <div class="auth-spinner"></div>
+                    <div class="auth-waiting-message">
+                        Uma mensagem foi enviada no Discord.<br>
+                        Por favor, responda "Sim" no servidor para confirmar que é você.
+                    </div>
+                    <button class="auth-cancel-btn" id="authCancelBtn">Cancelar</button>
+                </div>
             </div>
-
-            <button class="login-btn" id="login-btn" disabled>
-                Continuar com Discord
-            </button>
-
-            <div id="status-message"></div>
         </div>
     </div>
 
+    <div class="footer">•••</div>
+
     <script>
-        let selectedMember = null;
-        let allMembers = [];
         let authToken = null;
-        let checkInterval = null;
+        let authCheckInterval = null;
+        let currentUserId = null;
+        let currentUserName = null;
 
-        // Carregar membros do Discord
-        async function loadMembers() {
+        // Check if already authenticated
+        async function checkAuth() {
             try {
-                // Tentar localhost primeiro, depois IP fixo
-                const apiUrl = window.location.hostname === 'localhost' 
-                    ? 'http://localhost:3011' 
-                    : 'http://10.150.135.158:3011';
-                
-                const response = await fetch(`${apiUrl}/members`);
+                const response = await fetch('/api/check-auth');
                 const data = await response.json();
-                
-                allMembers = data.members.sort((a, b) => {
-                    // Ordenar por status (online primeiro) e depois por nome
-                    const statusOrder = { online: 0, idle: 1, dnd: 2, offline: 3 };
-                    if (statusOrder[a.status] !== statusOrder[b.status]) {
-                        return statusOrder[a.status] - statusOrder[b.status];
-                    }
-                    return a.displayName.localeCompare(b.displayName);
-                });
-
-                renderMembers(allMembers);
-                
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('login-form').style.display = 'block';
+                if (data.authenticated) {
+                    // Already logged in, redirect to home
+                    window.location.href = '/';
+                }
             } catch (error) {
-                console.error('Erro ao carregar membros:', error);
-                document.getElementById('loading').innerHTML = `
-                    <p style="color: red;">❌ Erro ao carregar membros do Discord</p>
-                    <p style="font-size: 12px;">Verifique se o bot está online</p>
-                `;
+                console.error('Erro ao verificar auth:', error);
             }
         }
 
-        function renderMembers(members) {
-            const membersList = document.getElementById('members-list');
-            membersList.innerHTML = '';
-
-            members.forEach(member => {
-                const div = document.createElement('div');
-                div.className = 'member-item';
-                div.innerHTML = `
-                    <img class="member-avatar" src="${member.avatar}" alt="${member.displayName}">
-                    <div class="member-info">
-                        <div class="member-name">${member.displayName}</div>
-                        <div class="member-status">
-                            <span class="status-dot status-${member.status}"></span>
-                            ${getStatusText(member.status)}
-                        </div>
-                    </div>
-                `;
-                
-                div.addEventListener('click', () => selectMember(member, div));
-                membersList.appendChild(div);
-            });
-        }
-
-        function getStatusText(status) {
-            const texts = {
-                online: 'Online',
-                idle: 'Ausente',
-                dnd: 'Não Perturbe',
-                offline: 'Offline'
-            };
-            return texts[status] || 'Desconhecido';
-        }
-
-        function selectMember(member, element) {
-            // Remover seleção anterior
-            document.querySelectorAll('.member-item').forEach(el => {
-                el.classList.remove('selected');
-            });
-
-            // Adicionar seleção atual
-            element.classList.add('selected');
-            selectedMember = member;
+        // Load Discord members
+        async function loadMembers() {
+            const membersList = document.getElementById('membersList');
             
-            // Habilitar botão
-            document.getElementById('login-btn').disabled = false;
-        }
-
-        // Busca de membros
-        document.getElementById('search').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = allMembers.filter(m => 
-                m.displayName.toLowerCase().includes(query) ||
-                m.name.toLowerCase().includes(query)
-            );
-            renderMembers(filtered);
-        });
-
-        // Botão de login
-        document.getElementById('login-btn').addEventListener('click', async () => {
-            if (!selectedMember) return;
-
-            const btn = document.getElementById('login-btn');
-            const statusDiv = document.getElementById('status-message');
-            
-            btn.disabled = true;
-            btn.textContent = 'Enviando solicitação...';
-
             try {
-                const apiUrl = window.location.hostname === 'localhost' 
-                    ? 'http://localhost:3011' 
-                    : 'http://10.150.135.158:3011';
+                const response = await fetch('/api/discord/members');
+                const data = await response.json();
                 
-                // Solicitar autenticação
-                const response = await fetch(`${apiUrl}/auth/request`, {
+                if (data.members && data.members.length > 0) {
+                    membersList.innerHTML = data.members.map(member => `
+                        <div class="member-item" onclick="requestAuth('${member.id}', '${member.displayName}')">
+                            <img src="${member.avatar || ''}" alt="${member.displayName}" class="member-avatar">
+                            <div class="member-info">
+                                <div class="member-name">${member.displayName}</div>
+                                <div class="member-status ${member.status === 'online' ? 'online' : ''}">${member.status || 'offline'}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    membersList.innerHTML = '<div class="loading-message">Nenhum membro encontrado.</div>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar membros:', error);
+                membersList.innerHTML = '<div class="loading-message">Erro ao carregar membros.</div>';
+            }
+        }
+
+        // Request authentication
+        async function requestAuth(userId, userName) {
+            try {
+                const response = await fetch('/api/discord/request-auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        userId: selectedMember.id,
-                        userName: selectedMember.displayName,
-                        userIp: window.location.hostname
+                        userId: userId,
+                        userName: userName,
+                        userIp: 'Site Access'
                     })
                 });
-
+                
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success && data.token) {
                     authToken = data.token;
-                    
-                    statusDiv.className = 'status-message status-info';
-                    statusDiv.innerHTML = `
-                        <strong>✉️ Mensagem enviada no Discord!</strong><br>
-                        Verifique o canal <strong>#general</strong> e responda com "Sim" para confirmar.
-                    `;
-                    
-                    btn.textContent = 'Aguardando confirmação...';
-                    
-                    // Iniciar verificação periódica
-                    startChecking();
+                    currentUserId = userId;
+                    currentUserName = userName;
+                    showAuthWaiting();
+                    startAuthCheck();
                 } else {
-                    throw new Error(data.error || 'Erro desconhecido');
+                    alert('Erro ao solicitar autenticação: ' + (data.error || 'Tente novamente'));
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                statusDiv.className = 'status-message status-error';
-                statusDiv.textContent = `❌ Erro: ${error.message}`;
-                btn.disabled = false;
-                btn.textContent = 'Continuar com Discord';
+                alert('Erro ao solicitar autenticação. Tente novamente.');
             }
-        });
+        }
 
-        function startChecking() {
-            let attempts = 0;
-            const maxAttempts = 60; // 5 minutos (60 * 5s)
+        function showAuthWaiting() {
+            document.getElementById('loginContent').style.display = 'none';
+            document.getElementById('authWaiting').style.display = 'block';
+        }
 
-            checkInterval = setInterval(async () => {
-                attempts++;
+        function hideAuthWaiting() {
+            document.getElementById('loginContent').style.display = 'block';
+            document.getElementById('authWaiting').style.display = 'none';
+        }
 
+        function startAuthCheck() {
+            authCheckInterval = setInterval(async () => {
                 try {
-                    const apiUrl = window.location.hostname === 'localhost' 
-                        ? 'http://localhost:3011' 
-                        : 'http://10.150.135.158:3011';
+                    const response = await fetch('/api/discord/verify-auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: authToken,
+                            userId: currentUserId,
+                            userName: currentUserName
+                        })
+                    });
                     
-                    const response = await fetch(`${apiUrl}/auth/check/${authToken}`);
                     const data = await response.json();
-
+                    
                     if (data.verified) {
-                        clearInterval(checkInterval);
+                        clearInterval(authCheckInterval);
                         
-                        // Criar sessão no servidor Python (usa porta 3010)
-                        const serverUrl = window.location.origin; // Usa o mesmo host/porta da página atual
-                        const sessionResponse = await fetch(`${serverUrl}/api/create-session`, {
+                        // Create session
+                        await fetch('/api/create-session', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                token: authToken,
-                                userId: selectedMember.id,
-                                userName: selectedMember.displayName
+                                userId: currentUserId,
+                                userName: currentUserName
                             })
                         });
-
-                        const sessionData = await sessionResponse.json();
-
-                        if (sessionData.success) {
-                            document.getElementById('status-message').className = 'status-message status-success';
-                            document.getElementById('status-message').innerHTML = `
-                                <strong>✅ Autenticação bem-sucedida!</strong><br>
-                                Redirecionando...
-                            `;
-
-                            setTimeout(() => {
-                                window.location.href = '/';
-                            }, 1500);
-                        }
+                        
+                        // Redirect to home
+                        window.location.href = '/';
                     } else if (data.expired) {
-                        clearInterval(checkInterval);
-                        
-                        document.getElementById('status-message').className = 'status-message status-error';
-                        document.getElementById('status-message').textContent = '⏱️ Tempo limite excedido. Tente novamente.';
-                        
-                        document.getElementById('login-btn').disabled = false;
-                        document.getElementById('login-btn').textContent = 'Continuar com Discord';
-                    }
-
-                    if (attempts >= maxAttempts) {
-                        clearInterval(checkInterval);
-                        
-                        document.getElementById('status-message').className = 'status-message status-error';
-                        document.getElementById('status-message').textContent = '⏱️ Tempo limite excedido. Tente novamente.';
-                        
-                        document.getElementById('login-btn').disabled = false;
-                        document.getElementById('login-btn').textContent = 'Continuar com Discord';
+                        clearInterval(authCheckInterval);
+                        alert('Tempo de autenticação expirado. Tente novamente.');
+                        cancelAuth();
                     }
                 } catch (error) {
-                    console.error('Erro ao verificar autenticação:', error);
+                    console.error('Erro ao verificar status:', error);
                 }
-            }, 5000); // Verificar a cada 5 segundos
+            }, 2000);
         }
 
-        // Carregar membros ao iniciar
+        function cancelAuth() {
+            if (authCheckInterval) {
+                clearInterval(authCheckInterval);
+            }
+            authToken = null;
+            currentUserId = null;
+            currentUserName = null;
+            hideAuthWaiting();
+        }
+
+        // Event listeners
+        document.getElementById('authCancelBtn').addEventListener('click', cancelAuth);
+
+        // Initialize
+        checkAuth();
         loadMembers();
     </script>
 </body>
