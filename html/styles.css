@@ -655,3 +655,64 @@ nav a:hover {
     border-color: rgba(74, 222, 128, 0.3);
     background: rgba(74, 222, 128, 0.05);
 }
+
+/* ============================================
+   INTRANET MANIFESTO - Cult Description
+   ============================================ */
+.intranet-manifesto {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-light);
+    max-width: 420px;
+}
+
+.manifesto-divider {
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    margin-bottom: 1.25rem;
+    opacity: 0.5;
+}
+
+.manifesto-text {
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--muted-foreground);
+    text-align: justify;
+    margin-bottom: 1rem;
+    hyphens: auto;
+}
+
+.manifesto-text.small {
+    font-size: 10px;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.manifesto-text .highlight {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.manifesto-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.footer-tag {
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.footer-tag:hover {
+    opacity: 1;
+}
