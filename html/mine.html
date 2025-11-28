@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MHASSAHROPOLIS</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.bunny.net/css?family=geist-sans:400,500,600,700|geist-mono:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="mine.css">
 </head>
 <body>
@@ -25,10 +28,9 @@
                 <div class="server-address">
                     <span id="serverAddress">10.150.135.158:25565</span>
                     <button id="copyIpBtn" class="copy-ip-btn" title="Copiar endereço do servidor" aria-label="Copiar endereço do servidor">
-                        <!-- Ícone de copiar (preto) -->
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 1H4c-1.1 0-2 .9-2 2v12h2V3h12V1z" fill="#000"></path>
-                            <path d="M20 5H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h12v14z" fill="#000"></path>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v12h2V3h12V1z" fill="currentColor"></path>
+                            <path d="M20 5H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h12v14z" fill="currentColor"></path>
                         </svg>
                     </button>
                 </div>
@@ -171,7 +173,7 @@
                             
                             <div class="top-players-grid" id="topPlayersGrid">
                                 <!-- Players serão carregados dinamicamente via JavaScript -->
-                                <div style="text-align: center; padding: 20px; color: #666;">
+                                <div style="text-align: center; padding: 20px; color: var(--muted-foreground);">
                                     Carregando jogadores...
                                 </div>
                             </div>

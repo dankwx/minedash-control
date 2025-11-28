@@ -368,8 +368,8 @@ const themeSelectorBtn = document.getElementById('themeSelectorBtn');
 const themeDropdown = document.getElementById('themeDropdown');
 const themeOptions = document.querySelectorAll('.theme-option');
 
-// Load saved theme from localStorage
-const savedTheme = localStorage.getItem('theme') || 'light';
+// Load saved theme from localStorage (dark is the default now)
+const savedTheme = localStorage.getItem('theme') || 'dark';
 document.documentElement.setAttribute('data-theme', savedTheme);
 updateActiveTheme(savedTheme);
 
@@ -563,7 +563,7 @@ async function updateSystemMetrics() {
     // armazenar SVG original para restaurar depois
     copyBtn.dataset.original = copyBtn.innerHTML;
 
-    const checkSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.2l-3.5-3.5-1.4 1.4L9 19 20.3 7.7l-1.4-1.4z" fill="#00ff00"/></svg>';
+    const checkSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.2l-3.5-3.5-1.4 1.4L9 19 20.3 7.7l-1.4-1.4z" fill="#4ade80"/></svg>';
 
     copyBtn.addEventListener('click', async function(e){
         e.preventDefault();
