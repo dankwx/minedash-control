@@ -12,6 +12,19 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- User Profile Button (Top Center) -->
+    <div class="user-profile-container">
+        <div class="user-profile" id="userProfile" style="display: none;">
+            <img src="" alt="Avatar" class="user-avatar" id="userAvatar">
+            <span class="user-name" id="userName">...</span>
+            <div class="user-dropdown-icon"></div>
+            <div class="user-dropdown" id="userDropdown">
+                <div class="user-dropdown-item" id="logoutBtn">Logout</div>
+            </div>
+        </div>
+        <a href="mine.html" class="login-link" id="loginLink">[ LOGIN ]</a>
+    </div>
+
     <main class="main-content">
         <h1>MHASSAHRO
 POLIS</h1>
@@ -68,6 +81,60 @@ POLIS</h1>
 
             container.appendChild(pcDiv);
         });
+
+        // === User Profile (reusing server.py auth) ===
+        const userProfile = document.getElementById('userProfile');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userDropdown = document.getElementById('userDropdown');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginLink = document.getElementById('loginLink');
+
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/user-info');
+                const data = await response.json();
+                
+                if (data.authenticated && data.userName) {
+                    userAvatar.src = data.avatar || '';
+                    userName.textContent = data.userName;
+                    userProfile.style.display = 'flex';
+                    loginLink.style.display = 'none';
+                } else {
+                    userProfile.style.display = 'none';
+                    loginLink.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+                userProfile.style.display = 'none';
+                loginLink.style.display = 'block';
+            }
+        }
+
+        // Toggle dropdown
+        userProfile.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.reload();
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+            }
+        });
+
+        // Close dropdown on outside click
+        document.addEventListener('click', () => {
+            userDropdown.classList.remove('active');
+        });
+
+        // Load profile on page load
+        loadUserProfile();
     </script>
 </body>
 </html>

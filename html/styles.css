@@ -209,3 +209,106 @@ nav a:hover {
     font-size: 10px;
     letter-spacing: 0.2em;
 }
+
+/* ============================================
+   USER PROFILE (Top Center)
+   ============================================ */
+.user-profile-container {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--card);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.user-profile:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.user-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    image-rendering: auto;
+}
+
+.user-name {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--foreground);
+    text-transform: uppercase;
+}
+
+.user-dropdown-icon {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--muted-foreground);
+    margin-left: 4px;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background: var(--card);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    min-width: 100px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.user-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.user-dropdown-item {
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--foreground);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s ease;
+}
+
+.user-dropdown-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.login-link {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+    text-decoration: none;
+    padding: 8px 16px;
+    background: var(--card);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.login-link:hover {
+    color: var(--accent);
+    border-color: rgba(74, 222, 128, 0.3);
+    background: rgba(74, 222, 128, 0.05);
+}
