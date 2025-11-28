@@ -326,7 +326,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(data_json.encode("utf-8"))
 
     def handle_top_players(self):
-        """Busca os top players dos arquivos de stats do Minecraft"""
+        """Busca os top players dos arquivos de stats do Minecraft + last_seen do SQLite"""
         try:
             from datetime import datetime, timedelta
             import os
@@ -349,6 +349,23 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             except:
                 online_players = []
             
+            # Buscar last_seen do SQLite
+            last_seen_data = {}
+            try:
+                conn = sqlite3.connect(DB_FILE)
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT player_name, MAX(leave_time) as last_seen
+                    FROM player_sessions
+                    WHERE player_name IS NOT NULL
+                    GROUP BY player_name
+                ''')
+                for row in cursor.fetchall():
+                    last_seen_data[row[0]] = row[1]
+                conn.close()
+            except Exception as e:
+                print(f"Erro ao buscar last_seen do SQLite: {e}")
+            
             players = []
             
             for name, uuid in player_uuids.items():
@@ -368,27 +385,32 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                     hours = total_seconds // 3600
                     minutes = (total_seconds % 3600) // 60
                     
-                    # Verificar última modificação do arquivo para "last seen"
-                    file_mtime = os.path.getmtime(stats_path)
-                    last_seen_dt = datetime.fromtimestamp(file_mtime)
-                    now = datetime.now()
-                    time_diff = now - last_seen_dt
-                    
                     # Verificar se está online
                     is_online = name in online_players
                     
+                    # Buscar last_seen do SQLite
+                    last_seen_str = "Desconhecido"
                     if is_online:
                         last_seen_str = "Agora"
-                    elif time_diff < timedelta(hours=1):
-                        mins = int(time_diff.total_seconds() / 60)
-                        last_seen_str = f"Há {mins} min"
-                    elif time_diff < timedelta(days=1):
-                        hrs = int(time_diff.total_seconds() / 3600)
-                        last_seen_str = f"Há {hrs}h"
-                    elif time_diff < timedelta(days=2):
-                        last_seen_str = "Ontem"
-                    else:
-                        last_seen_str = last_seen_dt.strftime("%d/%m/%Y")
+                    elif name in last_seen_data and last_seen_data[name]:
+                        try:
+                            last_seen = last_seen_data[name]
+                            last_seen_dt = datetime.fromisoformat(last_seen.replace('Z', '+00:00'))
+                            now = datetime.now(last_seen_dt.tzinfo) if last_seen_dt.tzinfo else datetime.now()
+                            time_diff = now - last_seen_dt
+                            
+                            if time_diff < timedelta(hours=1):
+                                mins = int(time_diff.total_seconds() / 60)
+                                last_seen_str = f"Há {mins} min"
+                            elif time_diff < timedelta(days=1):
+                                hrs = int(time_diff.total_seconds() / 3600)
+                                last_seen_str = f"Há {hrs}h"
+                            elif time_diff < timedelta(days=2):
+                                last_seen_str = "Ontem"
+                            else:
+                                last_seen_str = last_seen_dt.strftime("%d/%m/%Y")
+                        except:
+                            last_seen_str = "Desconhecido"
                     
                     # Calcular barra de progresso (baseado no total de horas, max 500h = 100%)
                     progress = min(100, (hours / 500) * 100)
