@@ -68,7 +68,7 @@
 }
 
 body {
-    font-family: 'Times New Roman', Times, serif;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -105,7 +105,7 @@ body {
 }
 
 .subtitle {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -140,7 +140,7 @@ body {
 }
 
 .server-info-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -184,7 +184,7 @@ body {
     gap: 8px;
     padding: 8px 12px;
     border: 1px solid var(--border-color);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -201,7 +201,7 @@ body {
     align-items: center;
     padding: 12px 0;
     border-bottom: 1px solid var(--border-light);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
 }
 
@@ -222,7 +222,7 @@ body {
 }
 
 .operatives-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -239,7 +239,7 @@ body {
 
 .operative-item {
     padding: 8px 0 8px 16px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 13px;
     font-weight: 500;
     text-transform: uppercase;
@@ -268,7 +268,7 @@ body {
 }
 
 .online-players-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -293,7 +293,7 @@ body {
 
 .player-item {
     padding: 8px 0 8px 16px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     font-weight: 500;
     border-bottom: 1px solid var(--border-light);
@@ -316,7 +316,7 @@ body {
 .empty-players {
     padding: 16px;
     text-align: center;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary);
@@ -382,7 +382,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -432,7 +432,7 @@ body {
 }
 
 .user-name {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -466,7 +466,7 @@ body {
 
 .user-dropdown-item {
     padding: 12px 16px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -488,7 +488,7 @@ body {
 .coordinates {
     display: flex;
     gap: 16px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     align-items: center;
 }
@@ -545,7 +545,7 @@ body {
 }
 
 .status {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     animation: pulse 2s ease-in-out infinite;
 }
@@ -570,7 +570,7 @@ body {
 }
 
 .description {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     font-weight: 500;
     line-height: 1.8;
@@ -591,6 +591,21 @@ body {
     justify-content: center;
     z-index: 3000;
     animation: fadeIn 0.2s ease;
+    padding: 24px;
+}
+
+/* Modal de Logs */
+.logs-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 4000;
     padding: 24px;
 }
 
@@ -620,7 +635,7 @@ body {
 }
 
 .logs-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 16px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -632,7 +647,7 @@ body {
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 13px;
     padding: 8px 18px;
     cursor: pointer;
@@ -651,7 +666,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 20px 24px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 13px;
     line-height: 1.6;
     color: var(--text-primary);
@@ -711,7 +726,7 @@ body {
     text-align: center;
     padding: 48px;
     color: #444;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 14px;
     letter-spacing: 1px;
 }
@@ -720,7 +735,7 @@ body {
     text-align: center;
     padding: 48px;
     color: #c0392b;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 14px;
 }
 
@@ -766,7 +781,7 @@ body {
 }
 
 .bluemap-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 16px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -784,7 +799,7 @@ body {
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     padding: 8px 16px;
     cursor: pointer;
@@ -809,7 +824,7 @@ body {
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 13px;
     padding: 8px 18px;
     cursor: pointer;
@@ -950,7 +965,7 @@ body {
 }
 
 .toggle-count {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 13px;
     font-weight: bold;
     color: var(--text-primary);
@@ -995,7 +1010,7 @@ body {
 }
 
 .members-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -1104,7 +1119,7 @@ body {
 .member-username {
     font-size: 11px;
     color: var(--text-secondary);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1113,7 +1128,7 @@ body {
 .members-loading {
     padding: 48px 24px;
     text-align: center;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -1123,7 +1138,7 @@ body {
 .members-error {
     padding: 24px;
     text-align: center;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     color: #ff0000;
 }
@@ -1500,7 +1515,7 @@ body {
 
 .theme-option {
     padding: 12px 16px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -1580,7 +1595,7 @@ body {
 }
 
 .login-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 20px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -1590,7 +1605,7 @@ body {
 }
 
 .login-subtitle {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 12px;
     text-align: center;
     margin-bottom: 32px;
@@ -1636,14 +1651,14 @@ body {
 }
 
 .member-name {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     font-weight: bold;
     margin-bottom: 4px;
 }
 
 .member-status {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -1653,7 +1668,7 @@ body {
 .loading-message {
     text-align: center;
     padding: 48px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 14px;
     color: var(--text-secondary);
 }
@@ -1664,7 +1679,7 @@ body {
 }
 
 .auth-waiting-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 18px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -1673,7 +1688,7 @@ body {
 }
 
 .auth-waiting-message {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 13px;
     margin-bottom: 24px;
     line-height: 1.6;
@@ -1699,7 +1714,7 @@ body {
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 13px;
     padding: 10px 24px;
     cursor: pointer;
@@ -1754,7 +1769,7 @@ body {
 }
 
 .notice-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 16px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -1762,7 +1777,7 @@ body {
 }
 
 .notice-priority {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 16px;
     padding: 4px 8px;
     border: 1px solid currentColor;
@@ -1789,7 +1804,7 @@ body {
     padding: 24px;
     max-height: 400px;
     overflow-y: auto;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 18px;
     line-height: 1.7;
 }
@@ -1824,7 +1839,7 @@ body {
 }
 
 .notice-btn {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 12px;
     padding: 12px 20px;
     cursor: pointer;
@@ -1870,7 +1885,7 @@ body {
 }
 
 .top-players-title {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 10px;
     font-weight: normal;
     text-transform: uppercase;
@@ -1879,7 +1894,7 @@ body {
 }
 
 .players-online-indicator {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 10px;
     color: var(--text-secondary);
 }
@@ -1887,7 +1902,7 @@ body {
 .top-players-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    gap: 20px;
 }
 
 .player-card {
@@ -1895,7 +1910,7 @@ body {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 16px;
+    padding: 24px 20px;
     transition: all 0.3s ease;
 }
 
@@ -1906,18 +1921,18 @@ body {
 
 .player-rank {
     position: absolute;
-    top: -8px;
-    left: -8px;
-    width: 24px;
-    height: 24px;
+    top: -10px;
+    left: -10px;
+    width: 32px;
+    height: 32px;
     background: var(--text-primary);
     color: var(--bg-primary);
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
+    border-radius: 6px;
     font-weight: bold;
 }
 
@@ -1964,8 +1979,8 @@ body {
 .player-content {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    margin-top: 8px;
+    gap: 16px;
+    margin-top: 10px;
 }
 
 .player-avatar-wrapper {
@@ -1974,9 +1989,9 @@ body {
 }
 
 .player-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 4px;
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
     image-rendering: pixelated;
     display: block;
 }
@@ -1995,43 +2010,71 @@ body {
 }
 
 .player-nickname {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    font-weight: 500;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--text-primary);
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: 0.3px;
 }
 
 .player-stats {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 10px;
 }
 
 .player-stat {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
+    gap: 10px;
+    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     color: var(--text-secondary);
 }
 
+/* Playtime - Primary stat with larger, bold display */
+.player-stat.playtime {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+
+.player-stat.playtime .stat-icon {
+    width: 24px;
+    height: 24px;
+    stroke: var(--text-primary);
+    opacity: 0.9;
+}
+
+/* Last seen - Secondary stat with smaller, subtle display */
+.player-stat.last-seen {
+    font-size: 13px;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.player-stat.last-seen .stat-icon {
+    width: 15px;
+    height: 15px;
+    opacity: 0.7;
+}
+
 .stat-icon {
-    width: 12px;
-    height: 12px;
     flex-shrink: 0;
     stroke: var(--text-secondary);
 }
 
 .player-progress {
-    margin-top: 12px;
-    height: 4px;
+    margin-top: 16px;
+    height: 5px;
     background: var(--border-light);
-    border-radius: 2px;
+    border-radius: 3px;
     overflow: hidden;
 }
 

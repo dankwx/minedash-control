@@ -885,7 +885,6 @@ async function loadTopPlayers() {
         
         topPlayersGrid.innerHTML = topFour.map(player => `
             <div class="player-card">
-                <div class="player-rank">${player.rank}</div>
                 ${player.is_online ? `
                     <div class="player-online-dot">
                         <span class="pulse-ring"></span>
@@ -894,23 +893,23 @@ async function loadTopPlayers() {
                 ` : ''}
                 <div class="player-content">
                     <div class="player-avatar-wrapper">
-                        <img src="https://mc-heads.net/avatar/${player.name}/48" 
+                        <img src="https://mc-heads.net/avatar/${player.name}/64" 
                              alt="${player.name}'s head" 
                              class="player-avatar"
-                             onerror="this.src='https://mc-heads.net/avatar/steve/48'">
+                             onerror="this.src='https://mc-heads.net/avatar/steve/64'">
                         <div class="avatar-border"></div>
                     </div>
                     <div class="player-info">
                         <h3 class="player-nickname">${player.name}</h3>
                         <div class="player-stats">
-                            <div class="player-stat">
+                            <div class="player-stat playtime">
                                 <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                                     <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                 </svg>
                                 <span>${player.playtime}</span>
                             </div>
-                            <div class="player-stat">
+                            <div class="player-stat last-seen">
                                 <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
                                     <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
