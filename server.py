@@ -176,6 +176,10 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/api/top-players':
             self.handle_top_players()
             return
+        
+        if self.path.startswith('/api/player-stats/'):
+            self.handle_player_stats()
+            return
 
         if self.path == '/teste' or self.path == '/teste/':
             # Página de teste protegida
@@ -322,28 +326,18 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(data_json.encode("utf-8"))
 
     def handle_top_players(self):
-        """Busca os top players do banco de dados player_sessions"""
+        """Busca os top players dos arquivos de stats do Minecraft"""
         try:
             from datetime import datetime, timedelta
+            import os
             
-            conn = sqlite3.connect(DB_FILE)
-            cursor = conn.cursor()
-            
-            # Buscar jogadores agrupados por nome com total de tempo jogado
-            cursor.execute('''
-                SELECT 
-                    player_name,
-                    SUM(duration_seconds) as total_seconds,
-                    MAX(leave_time) as last_seen,
-                    COUNT(*) as session_count
-                FROM player_sessions
-                WHERE player_name IS NOT NULL
-                GROUP BY player_name
-                ORDER BY total_seconds DESC
-            ''')
-            
-            players_data = cursor.fetchall()
-            conn.close()
+            # Mapear jogadores para UUIDs
+            player_uuids = {
+                'abcdan': 'c5839188-0e7d-4c3b-bcf0-0a61cf92c25e',
+                'AllaNaroK': '9e219595-539e-4d84-85bf-42000a35d506',
+                'HermeticPrince': 'c1bc4cb2-ab4e-402f-9da1-920de3163510',
+                'BITalucard': '05b846ad-f1ad-40a0-bd0f-252073db78ca'
+            }
             
             # Buscar jogadores online agora
             try:
@@ -355,22 +349,35 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             except:
                 online_players = []
             
-            # Processar dados dos jogadores
             players = []
-            for idx, (name, total_seconds, last_seen, session_count) in enumerate(players_data, 1):
-                # Converter segundos para horas e minutos
-                hours = total_seconds // 3600
-                minutes = (total_seconds % 3600) // 60
+            
+            for name, uuid in player_uuids.items():
+                stats_path = f"/minecraft-stats/{uuid}.json"
                 
-                # Processar última vez online
                 try:
-                    last_seen_dt = datetime.fromisoformat(last_seen.replace('Z', '+00:00'))
-                    now = datetime.now(last_seen_dt.tzinfo) if last_seen_dt.tzinfo else datetime.now()
+                    # Ler arquivo de stats
+                    with open(stats_path, 'r') as f:
+                        stats_data = json.load(f)
                     
-                    # Calcular diferença de tempo
+                    stats = stats_data.get('stats', {})
+                    custom = stats.get('minecraft:custom', {})
+                    
+                    # Tempo jogado em ticks (20 ticks = 1 segundo)
+                    play_time_ticks = custom.get('minecraft:play_time', 0)
+                    total_seconds = play_time_ticks // 20
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    
+                    # Verificar última modificação do arquivo para "last seen"
+                    file_mtime = os.path.getmtime(stats_path)
+                    last_seen_dt = datetime.fromtimestamp(file_mtime)
+                    now = datetime.now()
                     time_diff = now - last_seen_dt
                     
-                    if time_diff < timedelta(minutes=5):
+                    # Verificar se está online
+                    is_online = name in online_players
+                    
+                    if is_online:
                         last_seen_str = "Agora"
                     elif time_diff < timedelta(hours=1):
                         mins = int(time_diff.total_seconds() / 60)
@@ -382,25 +389,38 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                         last_seen_str = "Ontem"
                     else:
                         last_seen_str = last_seen_dt.strftime("%d/%m/%Y")
-                except:
-                    last_seen_str = "Desconhecido"
-                
-                # Verificar se está online
-                is_online = name in online_players
-                
-                # Calcular barra de progresso (baseado no total de horas, max 500h = 100%)
-                progress = min(100, (hours / 500) * 100)
-                
-                players.append({
-                    "rank": idx,
-                    "name": name,
-                    "playtime": f"{hours}h {minutes}m",
-                    "playtime_seconds": total_seconds,
-                    "last_seen": last_seen_str,
-                    "is_online": is_online,
-                    "progress": round(progress, 1),
-                    "session_count": session_count
-                })
+                    
+                    # Calcular barra de progresso (baseado no total de horas, max 500h = 100%)
+                    progress = min(100, (hours / 500) * 100)
+                    
+                    players.append({
+                        "name": name,
+                        "playtime": f"{hours}h {minutes}m",
+                        "playtime_seconds": total_seconds,
+                        "last_seen": last_seen_str,
+                        "is_online": is_online,
+                        "progress": round(progress, 1)
+                    })
+                    
+                except FileNotFoundError:
+                    # Jogador sem arquivo de stats ainda
+                    players.append({
+                        "name": name,
+                        "playtime": "0h 0m",
+                        "playtime_seconds": 0,
+                        "last_seen": "Nunca",
+                        "is_online": name in online_players,
+                        "progress": 0
+                    })
+                except Exception as e:
+                    print(f"Erro ao ler stats de {name}: {e}")
+            
+            # Ordenar por tempo jogado (maior primeiro)
+            players.sort(key=lambda x: x['playtime_seconds'], reverse=True)
+            
+            # Adicionar rank
+            for idx, player in enumerate(players, 1):
+                player['rank'] = idx
             
             # Contar quantos estão online
             online_count = sum(1 for p in players if p["is_online"])
@@ -436,6 +456,134 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps(response_data).encode("utf-8"))
+
+    def handle_player_stats(self):
+        """Busca estatísticas detalhadas de um jogador específico"""
+        try:
+            # Extrair nome do jogador da URL
+            player_name = self.path.split('/api/player-stats/')[-1]
+            player_name = player_name.strip('/')
+            
+            # Mapear nomes para UUIDs
+            player_uuids = {
+                'abcdan': 'c5839188-0e7d-4c3b-bcf0-0a61cf92c25e',
+                'AllaNaroK': '9e219595-539e-4d84-85bf-42000a35d506',
+                'HermeticPrince': 'c1bc4cb2-ab4e-402f-9da1-920de3163510',
+                'BITalucard': '05b846ad-f1ad-40a0-bd0f-252073db78ca'
+            }
+            
+            if player_name not in player_uuids:
+                self.send_response(404)
+                self.send_header("Content-type", "application/json")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": "Player not found"}).encode("utf-8"))
+                return
+            
+            uuid = player_uuids[player_name]
+            stats_path = f"/minecraft-stats/{uuid}.json"
+            adv_path = f"/minecraft-advancements/{uuid}.json"
+            
+            # Carregar estatísticas
+            with open(stats_path, 'r') as f:
+                stats_data = json.load(f)
+            
+            stats = stats_data.get('stats', {})
+            custom = stats.get('minecraft:custom', {})
+            killed = stats.get('minecraft:killed', {})
+            killed_by = stats.get('minecraft:killed_by', {})
+            mined = stats.get('minecraft:mined', {})
+            crafted = stats.get('minecraft:crafted', {})
+            picked_up = stats.get('minecraft:picked_up', {})
+            
+            # Calcular estatísticas principais
+            play_time_ticks = custom.get('minecraft:play_time', 0)
+            play_time_hours = play_time_ticks // 20 // 3600
+            play_time_minutes = (play_time_ticks // 20 // 60) % 60
+            
+            walk_cm = custom.get('minecraft:walk_one_cm', 0)
+            sprint_cm = custom.get('minecraft:sprint_one_cm', 0)
+            swim_cm = custom.get('minecraft:swim_one_cm', 0)
+            fly_cm = custom.get('minecraft:aviate_one_cm', 0)
+            
+            # Top 5 mobs killed
+            sorted_killed = sorted(killed.items(), key=lambda x: x[1], reverse=True)[:5]
+            top_mobs_killed = [{"mob": k.split(':')[-1].replace('_', ' ').title(), "count": v} for k, v in sorted_killed]
+            
+            # Top 5 items mined
+            sorted_mined = sorted(mined.items(), key=lambda x: x[1], reverse=True)[:5]
+            top_mined = [{"item": k.split(':')[-1].replace('_', ' ').title(), "count": v} for k, v in sorted_mined]
+            
+            # Killed by
+            killed_by_list = [{"mob": k.split(':')[-1].replace('_', ' ').title(), "count": v} for k, v in killed_by.items()]
+            
+            # Total de itens coletados
+            total_picked_up = sum(picked_up.values())
+            
+            # Total de blocos minerados
+            total_mined = sum(mined.values())
+            
+            # Total de itens craftados
+            total_crafted = sum(crafted.values())
+            
+            # Carregar advancements
+            completed_advancements = 0
+            try:
+                with open(adv_path, 'r') as f:
+                    adv_data = json.load(f)
+                completed_advancements = len([k for k, v in adv_data.items() if isinstance(v, dict) and v.get('done', False)])
+            except:
+                pass
+            
+            response_data = {
+                "success": True,
+                "player": player_name,
+                "stats": {
+                    "playtime": f"{play_time_hours}h {play_time_minutes}m",
+                    "playtime_minutes": play_time_ticks // 20 // 60,
+                    "deaths": custom.get('minecraft:deaths', 0),
+                    "mob_kills": custom.get('minecraft:mob_kills', 0),
+                    "player_kills": custom.get('minecraft:player_kills', 0),
+                    "damage_dealt": custom.get('minecraft:damage_dealt', 0),
+                    "damage_taken": custom.get('minecraft:damage_taken', 0),
+                    "jumps": custom.get('minecraft:jump', 0),
+                    "distance_walked": round(walk_cm / 100000, 2),  # km
+                    "distance_sprinted": round(sprint_cm / 100000, 2),  # km
+                    "distance_swam": round(swim_cm / 100, 2),  # metros
+                    "distance_flown": round(fly_cm / 100000, 2),  # km
+                    "blocks_mined": total_mined,
+                    "items_collected": total_picked_up,
+                    "items_crafted": total_crafted,
+                    "advancements_completed": completed_advancements,
+                    "top_mobs_killed": top_mobs_killed,
+                    "top_mined": top_mined,
+                    "killed_by": killed_by_list
+                }
+            }
+            
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps(response_data).encode("utf-8"))
+            
+        except FileNotFoundError:
+            self.send_response(404)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": False, "error": "Stats file not found"}).encode("utf-8"))
+            
+        except Exception as e:
+            print(f"Erro ao buscar stats do player: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            self.send_response(500)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
 
     # Legacy index page removed; use `mine.html` as the primary page.
 

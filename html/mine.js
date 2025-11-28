@@ -884,7 +884,7 @@ async function loadTopPlayers() {
         const topFour = players.slice(0, 4);
         
         topPlayersGrid.innerHTML = topFour.map(player => `
-            <div class="player-card">
+            <div class="player-card" data-player="${player.name}" onclick="loadPlayerStats('${player.name}')">
                 ${player.is_online ? `
                     <div class="player-online-dot">
                         <span class="pulse-ring"></span>
@@ -936,6 +936,163 @@ async function loadTopPlayers() {
         `;
         topPlayersOnline.textContent = '-- online';
     }
+}
+
+// Player Stats Functionality
+let selectedPlayer = null;
+
+async function loadPlayerStats(playerName) {
+    const statsContent = document.getElementById('playerStatsContent');
+    const statsHint = document.querySelector('.player-stats-hint');
+    
+    selectedPlayer = playerName;
+    
+    // Update hint
+    if (statsHint) {
+        statsHint.textContent = `Exibindo estatísticas de ${playerName}`;
+    }
+    
+    // Show loading
+    statsContent.innerHTML = `
+        <div class="stats-loading">
+            <div class="stats-loading-spinner"></div>
+            <span>Carregando estatísticas de ${playerName}...</span>
+        </div>
+    `;
+    
+    try {
+        const response = await fetch(`/api/player-stats/${playerName}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Erro ao carregar estatísticas');
+        }
+        
+        const stats = data.stats;
+        
+        // Calculate max damage for bar widths
+        const maxDamage = Math.max(stats.damage_dealt, stats.damage_taken, 1);
+        
+        statsContent.innerHTML = `
+            <!-- Main Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-value">${stats.playtime}</div>
+                    <div class="stat-card-label">Tempo Jogado</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${stats.deaths}</div>
+                    <div class="stat-card-label">Mortes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${stats.mob_kills}</div>
+                    <div class="stat-card-label">Mobs Mortos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${stats.advancements_completed}</div>
+                    <div class="stat-card-label">Conquistas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${stats.distance_walked.toFixed(1)} km</div>
+                    <div class="stat-card-label">Distância Caminhada</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${formatNumber(stats.blocks_mined)}</div>
+                    <div class="stat-card-label">Blocos Minerados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${formatNumber(stats.items_crafted)}</div>
+                    <div class="stat-card-label">Itens Craftados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${formatNumber(stats.jumps)}</div>
+                    <div class="stat-card-label">Pulos</div>
+                </div>
+            </div>
+            
+            <!-- Damage Stats -->
+            <div class="damage-stats">
+                <div class="damage-stat">
+                    <div class="damage-stat-header">
+                        <span class="damage-stat-label">Dano Causado</span>
+                        <span class="damage-stat-value">${formatNumber(stats.damage_dealt)}</span>
+                    </div>
+                    <div class="damage-bar">
+                        <div class="damage-bar-fill dealt" style="width: ${(stats.damage_dealt / maxDamage) * 100}%;"></div>
+                    </div>
+                </div>
+                <div class="damage-stat">
+                    <div class="damage-stat-header">
+                        <span class="damage-stat-label">Dano Recebido</span>
+                        <span class="damage-stat-value">${formatNumber(stats.damage_taken)}</span>
+                    </div>
+                    <div class="damage-bar">
+                        <div class="damage-bar-fill taken" style="width: ${(stats.damage_taken / maxDamage) * 100}%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Lists -->
+            <div class="stats-lists" style="margin-top: 24px;">
+                <div class="stat-list">
+                    <div class="stat-list-title">🗡️ Top Mobs Eliminados</div>
+                    ${stats.top_mobs_killed.length > 0 ? 
+                        stats.top_mobs_killed.map(mob => `
+                            <div class="stat-list-item">
+                                <span class="stat-list-item-name">${mob.mob}</span>
+                                <span class="stat-list-item-value">${mob.count}x</span>
+                            </div>
+                        `).join('') :
+                        '<div class="stat-list-empty">Nenhum mob eliminado ainda</div>'
+                    }
+                </div>
+                
+                <div class="stat-list">
+                    <div class="stat-list-title">⛏️ Top Blocos Minerados</div>
+                    ${stats.top_mined.length > 0 ?
+                        stats.top_mined.map(item => `
+                            <div class="stat-list-item">
+                                <span class="stat-list-item-name">${item.item}</span>
+                                <span class="stat-list-item-value">${formatNumber(item.count)}x</span>
+                            </div>
+                        `).join('') :
+                        '<div class="stat-list-empty">Nenhum bloco minerado ainda</div>'
+                    }
+                </div>
+                
+                <div class="stat-list">
+                    <div class="stat-list-title">💀 Morto Por</div>
+                    ${stats.killed_by.length > 0 ?
+                        stats.killed_by.map(mob => `
+                            <div class="stat-list-item">
+                                <span class="stat-list-item-name">${mob.mob}</span>
+                                <span class="stat-list-item-value">${mob.count}x</span>
+                            </div>
+                        `).join('') :
+                        '<div class="stat-list-empty">Invencível até agora! 🎉</div>'
+                    }
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Error loading player stats:', error);
+        statsContent.innerHTML = `
+            <div class="player-stats-placeholder">
+                <div class="placeholder-icon">❌</div>
+                <p>Erro ao carregar estatísticas: ${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toLocaleString('pt-BR');
 }
 
 // Initialize

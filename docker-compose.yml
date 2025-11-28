@@ -14,6 +14,8 @@ services:
       - ./html:/app/html
       - ./html/imagens:/app/html/imagens
       - /home/ubuntu/atm-10-pias/logs:/minecraft-logs:ro
+      - /home/ubuntu/atm-10-pias/world/stats:/minecraft-stats:ro
+      - /home/ubuntu/atm-10-pias/world/advancements:/minecraft-advancements:ro
     networks:
       - pias-network
     depends_on:
