@@ -628,10 +628,19 @@ nav a:hover {
 .user-dropdown-item {
     padding: 10px 14px;
     font-size: 11px;
+    font-family: 'Geist Mono', monospace;
+    font-weight: 400;
+    letter-spacing: 0.02em;
     color: var(--foreground);
     cursor: pointer;
     text-align: center;
     transition: background 0.2s ease;
+    display: block;
+    text-decoration: none;
+}
+
+a.user-dropdown-item {
+    color: var(--foreground);
 }
 
 .user-dropdown-item:hover {

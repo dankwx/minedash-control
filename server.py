@@ -214,6 +214,14 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_mine()
             return
 
+        if self.path == '/perfil' or self.path == '/perfil/':
+            # Profile page - requires authentication
+            if not self.check_auth():
+                self.redirect_to_login()
+                return
+            self.handle_perfil()
+            return
+
         # If it's an API route that wasn't handled, return 404 JSON
         if self.path.startswith('/api/'):
             self.send_response(404)
@@ -611,6 +619,15 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_mine(self):
         with open("mine.html", "r", encoding="utf-8") as f:
+            html = f.read()
+
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(html.encode("utf-8"))
+    
+    def handle_perfil(self):
+        with open("perfil.html", "r", encoding="utf-8") as f:
             html = f.read()
 
         self.send_response(200)
