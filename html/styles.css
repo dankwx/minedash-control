@@ -205,9 +205,352 @@ nav a:hover {
 .footer {
     position: fixed;
     bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
     color: var(--muted);
     font-size: 10px;
     letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    z-index: 50;
+}
+
+.footer:hover {
+    color: var(--accent);
+}
+
+/* ============================================
+   BOTTOM PANEL OVERLAY
+   ============================================ */
+.bottom-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 90;
+}
+
+.bottom-panel-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   BOTTOM PANEL
+   ============================================ */
+.bottom-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80vh;
+    background: var(--background);
+    border-top: 1px solid var(--border-light);
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px 16px 0 0;
+}
+
+.bottom-panel.open {
+    transform: translateY(0);
+}
+
+.bottom-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    cursor: pointer;
+}
+
+.bottom-panel-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--muted);
+    border-radius: 2px;
+    transition: background 0.2s ease;
+}
+
+.bottom-panel-header:hover .bottom-panel-handle {
+    background: var(--muted-foreground);
+}
+
+/* ============================================
+   DIAGRAM STYLES
+   ============================================ */
+.bottom-panel-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.diagram-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    font-family: 'Geist Mono', monospace;
+}
+
+.diagram-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--foreground);
+    letter-spacing: 0.2em;
+    margin-bottom: 3.5rem;
+}
+
+.diagram-top-row {
+    display: flex;
+    gap: 5rem;
+}
+
+.diagram-top-row-single {
+    display: flex;
+    justify-content: center;
+}
+
+.diagram-line-single {
+    width: 1px;
+    height: 40px;
+    border-left: 1px dashed var(--muted-foreground);
+}
+
+.diagram-box {
+    border: 1px dashed var(--border-light);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    min-width: 220px;
+}
+
+.diagram-box.good {
+    border-color: var(--accent);
+}
+
+.diagram-box.bad {
+    border-color: #ef4444;
+}
+
+.box-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.box-status {
+    font-size: 10px;
+}
+
+.box-status.good {
+    color: var(--accent);
+}
+
+.box-status.bad {
+    color: #ef4444;
+}
+
+.box-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--foreground);
+    letter-spacing: 0.05em;
+}
+
+.box-specs {
+    font-size: 12px;
+    color: var(--muted-foreground);
+    line-height: 1.8;
+}
+
+.diagram-lines {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 60px;
+    position: relative;
+}
+
+.line-left,
+.line-right,
+.line-center {
+    position: absolute;
+    width: 1px;
+    border-left: 1px dashed var(--muted-foreground);
+}
+
+.line-center {
+    left: 50%;
+    top: 30px;
+    height: 30px;
+}
+
+.line-left {
+    left: calc(50% - 135px);
+    top: 0;
+    height: 30px;
+}
+
+.line-left::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 1px;
+    width: 134px;
+    height: 1px;
+    border-top: 1px dashed var(--muted-foreground);
+}
+
+.line-right {
+    right: calc(50% - 135px);
+    top: 0;
+    height: 30px;
+}
+
+.line-right::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 1px;
+    width: 134px;
+    height: 1px;
+    border-top: 1px dashed var(--muted-foreground);
+}
+
+/* External Network Bar (Internet) */
+.external-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 50px;
+    border: 1px dashed #3b82f6;
+    margin: 0;
+}
+
+.external-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #3b82f6;
+    letter-spacing: 0.15em;
+}
+
+/* Zerotier Network Bar */
+.zerotier-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 60px;
+    border: 1px dashed #f59e0b;
+    margin: 0;
+}
+
+.zerotier-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #f59e0b;
+    letter-spacing: 0.15em;
+}
+
+/* Bottom connection lines */
+.diagram-lines-bottom {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 40px;
+    position: relative;
+}
+
+/* Linha horizontal principal que conecta ALLAN e DANIEL */
+.diagram-lines-bottom::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 1px;
+    border-top: 1px dashed var(--muted-foreground);
+}
+
+.line-b1, .line-b2, .line-b3, .line-b4 {
+    position: absolute;
+    width: 1px;
+    border-left: 1px dashed var(--muted-foreground);
+}
+
+/* ALLAN e DANIEL - linhas começam na linha horizontal */
+.line-b2, .line-b3 {
+    top: 0;
+    height: 40px;
+}
+
+/* ALYSSON e LUCAS - linhas começam mais acima (na altura do Zerotier) */
+.line-b1, .line-b4 {
+    top: -12px;
+    height: 52px;
+}
+
+/* Linhas horizontais extras para ALYSSON e LUCAS - saindo do Zerotier */
+.line-b1::before, .line-b4::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 1px;
+    border-top: 1px dashed var(--muted-foreground);
+}
+
+.line-b1::before {
+    left: 0;
+    width: 55px;  /* distância da linha do ALYSSON até a borda do Zerotier */
+}
+
+.line-b4::before {
+    right: 0;
+    width: 55px;  /* distância da linha do LUCAS até a borda do Zerotier */
+}
+
+/* Posições das linhas verticais - alinhadas com o centro de cada box */
+.line-b1 { left: calc(50% - 185px); }  /* ALYSSON */
+.line-b2 { left: calc(50% - 60px); }   /* ALLAN */
+.line-b3 { left: calc(50% + 60px); }   /* DANIEL */
+.line-b4 { left: calc(50% + 185px); }  /* LUCAS */
+
+.diagram-bottom-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.diagram-box-small {
+    border: 1px dashed var(--border-light);
+    padding: 0.8rem 1.2rem;
+    text-align: center;
+    min-width: 100px;
+}
+
+.diagram-box-small .box-header {
+    margin-bottom: 0;
+}
+
+.diagram-box-small .box-title {
+    font-size: 10px;
+}
+
+.diagram-box-small .box-status {
+    font-size: 6px;
 }
 
 /* ============================================

@@ -43,7 +43,88 @@ POLIS</h1>
         </nav>
     </main>
 
-    <div class="footer">•••</div>
+    <div class="footer" id="footerToggle">•••</div>
+
+    <!-- Bottom Panel Overlay -->
+    <div class="bottom-panel-overlay" id="bottomPanelOverlay"></div>
+    <aside class="bottom-panel" id="bottomPanel">
+        <div class="bottom-panel-header">
+            <div class="bottom-panel-handle"></div>
+        </div>
+        <div class="bottom-panel-content">
+            <div class="diagram-container">
+                <!-- Title -->
+                <div class="diagram-title">INTRANET PRIVADA MHASSAHROPOLIS</div>
+                
+                <!-- External Network Bar -->
+                <div class="external-bar">
+                    <span class="external-label">INTERNET</span>
+                </div>
+                
+                <!-- Connection Line from Internet to VM -->
+                <div class="diagram-line-single"></div>
+                
+                <!-- Top Row - Oracle VM -->
+                <div class="diagram-top-row-single">
+                    <div class="diagram-box good">
+                        <div class="box-header">
+                            <span class="box-status good">●</span>
+                            <span class="box-title">ORACLE VM</span>
+                        </div>
+                        <div class="box-specs">
+                            <div>4 OCPU Ampere</div>
+                            <div>24GB RAM</div>
+                            <div>200GB SSD</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Connection Line Top -->
+                <div class="diagram-line-single"></div>
+                
+                <!-- Zerotier Network Bar -->
+                <div class="zerotier-bar">
+                    <span class="zerotier-label">ZEROTIER NETWORK</span>
+                </div>
+                
+                <!-- Connection Lines Bottom -->
+                <div class="diagram-lines-bottom">
+                    <div class="line-b1"></div>
+                    <div class="line-b2"></div>
+                    <div class="line-b3"></div>
+                    <div class="line-b4"></div>
+                </div>
+                
+                <!-- Bottom Row - PCs -->
+                <div class="diagram-bottom-row">
+                    <div class="diagram-box-small">
+                        <div class="box-header">
+                            <span class="box-status good">●</span>
+                            <span class="box-title">ALYSSON</span>
+                        </div>
+                    </div>
+                    <div class="diagram-box-small">
+                        <div class="box-header">
+                            <span class="box-status good">●</span>
+                            <span class="box-title">ALLAN</span>
+                        </div>
+                    </div>
+                    <div class="diagram-box-small">
+                        <div class="box-header">
+                            <span class="box-status bad">●</span>
+                            <span class="box-title">DANIEL</span>
+                        </div>
+                    </div>
+                    <div class="diagram-box-small">
+                        <div class="box-header">
+                            <span class="box-status good">●</span>
+                            <span class="box-title">LUCAS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
 
     <script>
         const pcs = [
@@ -135,6 +216,29 @@ POLIS</h1>
 
         // Load profile on page load
         loadUserProfile();
+
+        // Bottom Panel Toggle
+        const footerToggle = document.getElementById('footerToggle');
+        const bottomPanel = document.getElementById('bottomPanel');
+        const bottomPanelOverlay = document.getElementById('bottomPanelOverlay');
+
+        footerToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            bottomPanel.classList.toggle('open');
+            bottomPanelOverlay.classList.toggle('open');
+        });
+
+        // Fechar ao clicar no overlay
+        bottomPanelOverlay.addEventListener('click', () => {
+            bottomPanel.classList.remove('open');
+            bottomPanelOverlay.classList.remove('open');
+        });
+
+        // Fechar ao clicar no handle do header
+        document.querySelector('.bottom-panel-header').addEventListener('click', () => {
+            bottomPanel.classList.remove('open');
+            bottomPanelOverlay.classList.remove('open');
+        });
     </script>
 </body>
 </html>
