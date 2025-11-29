@@ -15,6 +15,8 @@ app.use(express.json());
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_SERVER_ID = process.env.DISCORD_SERVER_ID;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
+const DISCORD_STATUS_CHANNEL_ID = "1444419232539480184"; // Canal para mostrar jogadores online
+const DISCORD_STATUS_CATEGORY_ID = "1437137837471305789"; // Categoria para mostrar jogadores online
 
 console.log("🔧 Configurações carregadas:");
 console.log("   Token:", DISCORD_TOKEN ? "✅ Configurado" : "❌ Faltando");
@@ -47,6 +49,10 @@ let membersCache = [];
 let lastFetch = 0;
 const CACHE_DURATION = 30000; // 30 segundos de cache
 
+// Cache do status do servidor Minecraft
+let lastOnlinePlayers = -1; // Para detectar mudanças
+let lastCategoryName = ""; // Para detectar mudanças na categoria
+
 // Sistema de autenticação pendente
 // { token: { userId, userName, timestamp, verified, messageId, messageContent } }
 let pendingAuth = {};
@@ -60,6 +66,12 @@ client.once("ready", async () => {
   
   // Atualizar cache a cada 30 segundos
   setInterval(updateMembersCache, CACHE_DURATION);
+  
+  // Atualizar status do servidor Minecraft no canal
+  await updateServerStatusChannel();
+  
+  // Verificar status do servidor a cada 5 minutos (respeita rate limit do Discord)
+  setInterval(updateServerStatusChannel, 5 * 60 * 1000);
 });
 
 // Listener para mensagens (resposta de confirmação)
@@ -183,6 +195,70 @@ client.on("messageCreate", async (message) => {
     }
   }
 });
+
+// Função para atualizar o nome do canal com status do servidor
+async function updateServerStatusChannel() {
+  try {
+    console.log("🎮 Verificando status do servidor Minecraft...");
+    
+    // Buscar status do servidor Minecraft via API (usando nome do container Docker)
+    const response = await fetch("http://mcstatus-web:3010/api/status");
+    const data = await response.json();
+    
+    if (data.error) {
+      console.log("❌ Servidor Minecraft offline ou erro:", data.error);
+      // Se o servidor estiver offline, mostrar 0
+      if (lastOnlinePlayers !== 0) {
+        const channel = await client.channels.fetch(DISCORD_STATUS_CHANNEL_ID);
+        await channel.setName(`online-0╱4`);
+        
+        // Atualizar categoria com emoji vermelho
+        const category = await client.channels.fetch(DISCORD_STATUS_CATEGORY_ID);
+        const categoryName = `🔴 Servidor - 0/4 Online`;
+        if (lastCategoryName !== categoryName) {
+          await category.setName(categoryName);
+          lastCategoryName = categoryName;
+          console.log(`📝 Categoria atualizada: ${categoryName}`);
+        }
+        
+        lastOnlinePlayers = 0;
+        console.log("📝 Canal atualizado: online-0╱4 (servidor offline)");
+      }
+      return;
+    }
+    
+    const onlinePlayers = data.players_online;
+    const maxPlayers = data.players_max;
+    
+    console.log(`🎮 Jogadores online: ${onlinePlayers}/${maxPlayers}`);
+    
+    // Só atualiza se o número mudou (evita rate limit)
+    if (onlinePlayers !== lastOnlinePlayers) {
+      // Atualizar canal
+      const channel = await client.channels.fetch(DISCORD_STATUS_CHANNEL_ID);
+      const newName = `online-${onlinePlayers}╱${maxPlayers}`;
+      await channel.setName(newName);
+      
+      // Atualizar categoria com emoji verde ou vermelho
+      const category = await client.channels.fetch(DISCORD_STATUS_CATEGORY_ID);
+      const emoji = onlinePlayers > 0 ? "🟢" : "🔴";
+      const categoryName = `${emoji} Servidor - ${onlinePlayers}/${maxPlayers} Online`;
+      
+      if (lastCategoryName !== categoryName) {
+        await category.setName(categoryName);
+        lastCategoryName = categoryName;
+        console.log(`📝 Categoria atualizada: ${categoryName}`);
+      }
+      
+      lastOnlinePlayers = onlinePlayers;
+      console.log(`✅ Canal atualizado: ${newName}`);
+    } else {
+      console.log("ℹ️ Sem mudanças no número de jogadores");
+    }
+  } catch (err) {
+    console.error("❌ Erro ao atualizar status do servidor:", err.message);
+  }
+}
 
 // Função para atualizar o cache de membros
 async function updateMembersCache() {
