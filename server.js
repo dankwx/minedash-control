@@ -15,7 +15,6 @@ app.use(express.json());
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_SERVER_ID = process.env.DISCORD_SERVER_ID;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
-const DISCORD_STATUS_CHANNEL_ID = "1444419232539480184"; // Canal para mostrar jogadores online
 const DISCORD_STATUS_CATEGORY_ID = "1437137837471305789"; // Categoria para mostrar jogadores online
 
 console.log("🔧 Configurações carregadas:");
@@ -209,20 +208,20 @@ async function updateServerStatusChannel() {
       console.log("❌ Servidor Minecraft offline ou erro:", data.error);
       // Se o servidor estiver offline, mostrar 0
       if (lastOnlinePlayers !== 0) {
-        const channel = await client.channels.fetch(DISCORD_STATUS_CHANNEL_ID);
-        await channel.setName(`online-0╱4`);
-        
         // Atualizar categoria com emoji vermelho
-        const category = await client.channels.fetch(DISCORD_STATUS_CATEGORY_ID);
-        const categoryName = `🔴 Servidor - 0/4 Online`;
-        if (lastCategoryName !== categoryName) {
-          await category.setName(categoryName);
-          lastCategoryName = categoryName;
-          console.log(`📝 Categoria atualizada: ${categoryName}`);
+        try {
+          const category = await client.channels.fetch(DISCORD_STATUS_CATEGORY_ID);
+          const categoryName = `🔴 Minecraft - 0/4 Online`;
+          if (lastCategoryName !== categoryName) {
+            await category.setName(categoryName);
+            lastCategoryName = categoryName;
+            console.log(`📝 Categoria atualizada: ${categoryName}`);
+          }
+        } catch (categoryErr) {
+          console.error(`❌ Erro ao atualizar categoria (${DISCORD_STATUS_CATEGORY_ID}):`, categoryErr.message);
         }
         
         lastOnlinePlayers = 0;
-        console.log("📝 Canal atualizado: online-0╱4 (servidor offline)");
       }
       return;
     }
@@ -234,24 +233,22 @@ async function updateServerStatusChannel() {
     
     // Só atualiza se o número mudou (evita rate limit)
     if (onlinePlayers !== lastOnlinePlayers) {
-      // Atualizar canal
-      const channel = await client.channels.fetch(DISCORD_STATUS_CHANNEL_ID);
-      const newName = `online-${onlinePlayers}╱${maxPlayers}`;
-      await channel.setName(newName);
-      
       // Atualizar categoria com emoji verde ou vermelho
-      const category = await client.channels.fetch(DISCORD_STATUS_CATEGORY_ID);
-      const emoji = onlinePlayers > 0 ? "🟢" : "🔴";
-      const categoryName = `${emoji} Servidor - ${onlinePlayers}/${maxPlayers} Online`;
-      
-      if (lastCategoryName !== categoryName) {
-        await category.setName(categoryName);
-        lastCategoryName = categoryName;
-        console.log(`📝 Categoria atualizada: ${categoryName}`);
+      try {
+        const category = await client.channels.fetch(DISCORD_STATUS_CATEGORY_ID);
+        const emoji = onlinePlayers > 0 ? "🟢" : "🔴";
+        const categoryName = `${emoji} Minecraft - ${onlinePlayers}/4 Online`;
+        
+        if (lastCategoryName !== categoryName) {
+          await category.setName(categoryName);
+          lastCategoryName = categoryName;
+          console.log(`📝 Categoria atualizada: ${categoryName}`);
+        }
+      } catch (categoryErr) {
+        console.error(`❌ Erro ao atualizar categoria (${DISCORD_STATUS_CATEGORY_ID}):`, categoryErr.message);
       }
       
       lastOnlinePlayers = onlinePlayers;
-      console.log(`✅ Canal atualizado: ${newName}`);
     } else {
       console.log("ℹ️ Sem mudanças no número de jogadores");
     }
