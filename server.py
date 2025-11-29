@@ -398,12 +398,15 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                     
                     # Buscar last_seen do SQLite
                     last_seen_str = "Desconhecido"
+                    last_seen_full = None  # Data completa para tooltip
                     if is_online:
                         last_seen_str = "Agora"
+                        last_seen_full = datetime.now().strftime("%d/%m/%Y %H:%M")
                     elif name in last_seen_data and last_seen_data[name]:
                         try:
                             last_seen = last_seen_data[name]
                             last_seen_dt = datetime.fromisoformat(last_seen.replace('Z', '+00:00'))
+                            last_seen_full = last_seen_dt.strftime("%d/%m/%Y %H:%M")
                             now = datetime.now(last_seen_dt.tzinfo) if last_seen_dt.tzinfo else datetime.now()
                             time_diff = now - last_seen_dt
                             
@@ -428,6 +431,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                         "playtime": f"{hours}h {minutes}m",
                         "playtime_seconds": total_seconds,
                         "last_seen": last_seen_str,
+                        "last_seen_full": last_seen_full,
                         "is_online": is_online,
                         "progress": round(progress, 1)
                     })
@@ -439,6 +443,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                         "playtime": "0h 0m",
                         "playtime_seconds": 0,
                         "last_seen": "Nunca",
+                        "last_seen_full": None,
                         "is_online": name in online_players,
                         "progress": 0
                     })

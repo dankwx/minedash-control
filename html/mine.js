@@ -909,7 +909,7 @@ async function loadTopPlayers() {
                                 </svg>
                                 <span>${player.playtime}</span>
                             </div>
-                            <div class="player-stat last-seen">
+                            <div class="player-stat last-seen has-tooltip" ${player.last_seen_full ? `data-tooltip="${player.last_seen_full}"` : ''}>
                                 <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
                                     <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>

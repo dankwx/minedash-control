@@ -759,6 +759,62 @@ a.user-dropdown-item {
     color: var(--muted-foreground);
 }
 
+/* Tooltip para last-seen */
+.has-tooltip {
+    position: relative;
+    cursor: pointer;
+}
+
+.has-tooltip::before,
+.has-tooltip::after {
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.has-tooltip::before {
+    content: attr(data-tooltip);
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--foreground);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+}
+
+.has-tooltip::after {
+    content: '';
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    border: 6px solid transparent;
+    border-top-color: var(--border);
+}
+
+.has-tooltip:hover::before,
+.has-tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.has-tooltip:hover::before {
+    transform: translateX(-50%) translateY(0);
+}
+
+.has-tooltip:hover::after {
+    transform: translateX(-50%) translateY(0);
+}
+
 .stat-icon {
     width: 14px;
     height: 14px;
