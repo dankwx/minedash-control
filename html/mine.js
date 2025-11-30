@@ -942,18 +942,29 @@ async function loadTopPlayers() {
 let selectedPlayer = null;
 
 async function loadPlayerStats(playerName) {
-    const statsContent = document.getElementById('playerStatsContent');
-    const statsHint = document.querySelector('.player-stats-hint');
+    const statsPanel = document.getElementById('statsPanel');
+    const tabHint = document.getElementById('tabHint');
+    const storageTab = document.getElementById('storageTab');
+    const statsTab = document.getElementById('statsTab');
+    const storagePanel = document.getElementById('storagePanel');
     
     selectedPlayer = playerName;
     
+    // Switch to stats tab
+    if (statsTab && storageTab) {
+        statsTab.classList.add('active');
+        storageTab.classList.remove('active');
+        statsPanel.classList.add('active');
+        storagePanel.classList.remove('active');
+    }
+    
     // Update hint
-    if (statsHint) {
-        statsHint.textContent = `Exibindo estatísticas de ${playerName}`;
+    if (tabHint) {
+        tabHint.textContent = `Exibindo estatísticas de ${playerName}`;
     }
     
     // Show loading
-    statsContent.innerHTML = `
+    statsPanel.innerHTML = `
         <div class="stats-loading">
             <div class="stats-loading-spinner"></div>
             <span>Carregando estatísticas de ${playerName}...</span>
@@ -973,7 +984,7 @@ async function loadPlayerStats(playerName) {
         // Calculate max damage for bar widths
         const maxDamage = Math.max(stats.damage_dealt, stats.damage_taken, 1);
         
-        statsContent.innerHTML = `
+        statsPanel.innerHTML = `
             <!-- Main Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -1077,7 +1088,7 @@ async function loadPlayerStats(playerName) {
         
     } catch (error) {
         console.error('Error loading player stats:', error);
-        statsContent.innerHTML = `
+        statsPanel.innerHTML = `
             <div class="player-stats-placeholder">
                 <div class="placeholder-icon">❌</div>
                 <p>Erro ao carregar estatísticas: ${error.message}</p>
@@ -1094,6 +1105,36 @@ function formatNumber(num) {
     }
     return num.toLocaleString('pt-BR');
 }
+
+// === Tab Switching System ===
+function initTabs() {
+    const storageTab = document.getElementById('storageTab');
+    const statsTab = document.getElementById('statsTab');
+    const storagePanel = document.getElementById('storagePanel');
+    const statsPanel = document.getElementById('statsPanel');
+    const tabHint = document.getElementById('tabHint');
+    
+    if (!storageTab || !statsTab) return;
+    
+    storageTab.addEventListener('click', () => {
+        storageTab.classList.add('active');
+        statsTab.classList.remove('active');
+        storagePanel.classList.add('active');
+        statsPanel.classList.remove('active');
+        tabHint.textContent = '';
+    });
+    
+    statsTab.addEventListener('click', () => {
+        statsTab.classList.add('active');
+        storageTab.classList.remove('active');
+        statsPanel.classList.add('active');
+        storagePanel.classList.remove('active');
+        tabHint.textContent = 'Clique em um card acima para ver as estatísticas';
+    });
+}
+
+// Initialize tabs
+initTabs();
 
 // Initialize
 loadStatus();

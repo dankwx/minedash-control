@@ -183,14 +183,27 @@
                         <!-- Player Stats Section -->
                         <div class="player-stats-section" id="playerStatsSection">
                             <div class="player-stats-header">
-                                <h2 class="player-stats-title">// ESTATÍSTICAS DO JOGADOR</h2>
-                                <span class="player-stats-hint">Clique em um card acima para ver as estatísticas</span>
+                                <div class="player-stats-tabs">
+                                    <button class="player-stats-tab active" id="storageTab" data-tab="storage">[ STORAGE ]</button>
+                                    <button class="player-stats-tab" id="statsTab" data-tab="stats">[ ESTATÍSTICAS ]</button>
+                                </div>
+                                <span class="player-stats-hint" id="tabHint"></span>
                             </div>
                             
                             <div class="player-stats-content" id="playerStatsContent">
-                                <div class="player-stats-placeholder">
-                                    <div class="placeholder-icon">📊</div>
-                                    <p>Selecione um jogador para ver suas estatísticas detalhadas</p>
+                                <!-- Storage Panel -->
+                                <div class="tab-panel active" id="storagePanel">
+                                    <div class="player-stats-placeholder">
+                                        <div class="placeholder-icon">📦</div>
+                                        <p>Storage em desenvolvimento...</p>
+                                    </div>
+                                </div>
+                                <!-- Stats Panel -->
+                                <div class="tab-panel" id="statsPanel">
+                                    <div class="player-stats-placeholder">
+                                        <div class="placeholder-icon">📊</div>
+                                        <p>Selecione um jogador para ver suas estatísticas detalhadas</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
