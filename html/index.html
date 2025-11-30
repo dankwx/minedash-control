@@ -100,25 +100,25 @@ POLIS</h1>
                 <div class="diagram-bottom-row">
                     <div class="diagram-box-small">
                         <div class="box-header">
-                            <span class="box-status good">●</span>
+                            <!-- <span class="box-status good">●</span> -->
                             <span class="box-title">ALYSSON</span>
                         </div>
                     </div>
                     <div class="diagram-box-small">
                         <div class="box-header">
-                            <span class="box-status good">●</span>
+                            <!-- <span class="box-status good">●</span> -->
                             <span class="box-title">ALLAN</span>
                         </div>
                     </div>
                     <div class="diagram-box-small">
                         <div class="box-header">
-                            <span class="box-status bad">●</span>
+                            <!-- <span class="box-status bad">●</span> -->
                             <span class="box-title">DANIEL</span>
                         </div>
                     </div>
                     <div class="diagram-box-small">
                         <div class="box-header">
-                            <span class="box-status good">●</span>
+                            <!-- <span class="box-status good">●</span> -->
                             <span class="box-title">LUCAS</span>
                         </div>
                     </div>
@@ -167,14 +167,15 @@ POLIS</h1>
             const statusDiv = document.createElement('div');
             statusDiv.className = 'pc-status';
 
-            const dot = document.createElement('span');
-            dot.className = `status-dot ${pc.online ? 'online' : 'offline'}`;
+            // TODO: Reativar quando implementar status real
+            // const dot = document.createElement('span');
+            // dot.className = `status-dot ${pc.online ? 'online' : 'offline'}`;
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'pc-name';
             nameSpan.textContent = pc.name;
 
-            statusDiv.appendChild(dot);
+            // statusDiv.appendChild(dot);
             statusDiv.appendChild(nameSpan);
 
             const ipSpan = document.createElement('span');
