@@ -1182,6 +1182,7 @@ function renderStorageItems(items) {
         const displayName = item.displayName.replace(/^\[|\]$/g, ''); // Remove brackets
         const itemId = item.name;
         const amount = formatStorageAmount(item.amount);
+        const fullAmount = item.amount.toLocaleString('pt-BR');
         
         // Parse mod and item name from itemId (e.g., "minecraft:diamond" -> mod="minecraft", itemName="diamond")
         const [mod, itemName] = itemId.split(':');
@@ -1189,7 +1190,12 @@ function renderStorageItems(items) {
         const fallbackHue = hashStringToHue(mod);
         
         return `
-            <div class="storage-item" data-item-id="${itemId}" data-item-name="${displayName.toLowerCase()}">
+            <div class="storage-item" 
+                 data-item-id="${itemId}" 
+                 data-item-name="${displayName.toLowerCase()}"
+                 data-display-name="${displayName}"
+                 data-full-amount="${fullAmount}"
+                 data-mod="${mod}">
                 <img class="storage-item-icon" 
                      src="${textureUrl}" 
                      alt="${displayName}"
@@ -1197,21 +1203,6 @@ function renderStorageItems(items) {
                      onerror="handleTextureError(this, '${mod}', '${itemName}', '${displayName.charAt(0).toUpperCase()}', ${fallbackHue})">
                 <div class="storage-item-fallback" style="display:none;"></div>
                 <span class="storage-item-amount">${amount}</span>
-                <div class="storage-item-tooltip">
-                    <div class="storage-item-tooltip-name">${displayName}</div>
-                    <div class="storage-item-tooltip-row">
-                        <span class="storage-item-tooltip-label">ID</span>
-                        <span class="storage-item-tooltip-value">${itemId}</span>
-                    </div>
-                    <div class="storage-item-tooltip-row">
-                        <span class="storage-item-tooltip-label">Quantidade</span>
-                        <span class="storage-item-tooltip-value amount">${item.amount.toLocaleString('pt-BR')}</span>
-                    </div>
-                    <div class="storage-item-tooltip-row">
-                        <span class="storage-item-tooltip-label">Mod</span>
-                        <span class="storage-item-tooltip-value">${mod}</span>
-                    </div>
-                </div>
             </div>
         `;
     }).join('');
@@ -1259,23 +1250,60 @@ function formatStorageNumber(num) {
 
 function initStorageTooltips() {
     const storageGrid = document.getElementById('storageGrid');
-    if (!storageGrid) return;
+    const tooltip = document.getElementById('globalStorageTooltip');
+    const tooltipName = document.getElementById('globalTooltipName');
+    const tooltipId = document.getElementById('globalTooltipId');
+    const tooltipAmount = document.getElementById('globalTooltipAmount');
+    const tooltipMod = document.getElementById('globalTooltipMod');
+    
+    if (!storageGrid || !tooltip) return;
     
     storageGrid.addEventListener('mouseover', (e) => {
         const item = e.target.closest('.storage-item');
         if (!item) return;
         
-        const tooltip = item.querySelector('.storage-item-tooltip');
-        if (!tooltip) return;
+        // Update tooltip content
+        tooltipName.textContent = item.dataset.displayName;
+        tooltipId.textContent = item.dataset.itemId;
+        tooltipAmount.textContent = item.dataset.fullAmount;
+        tooltipMod.textContent = item.dataset.mod;
         
+        // Position tooltip
         const rect = item.getBoundingClientRect();
+        const tooltipHeight = 100; // approximate tooltip height
         
-        // If tooltip would go above viewport, show below instead
-        if (rect.top < 100) {
+        // Check if tooltip would go above viewport
+        if (rect.top < tooltipHeight + 10) {
+            // Show below
             tooltip.classList.add('below');
+            tooltip.style.top = (rect.bottom + 8) + 'px';
         } else {
+            // Show above
             tooltip.classList.remove('below');
+            tooltip.style.top = (rect.top - tooltipHeight - 8) + 'px';
         }
+        
+        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+        tooltip.style.transform = 'translateX(-50%)';
+        tooltip.classList.add('visible');
+    });
+    
+    storageGrid.addEventListener('mouseout', (e) => {
+        const item = e.target.closest('.storage-item');
+        if (!item) return;
+        
+        // Check if we're still within a storage item
+        const relatedTarget = e.relatedTarget;
+        if (relatedTarget && relatedTarget.closest && relatedTarget.closest('.storage-item')) {
+            return;
+        }
+        
+        tooltip.classList.remove('visible');
+    });
+    
+    // Hide tooltip when leaving the grid entirely
+    storageGrid.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
     });
 }
 

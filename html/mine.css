@@ -1533,7 +1533,6 @@ a.user-dropdown-item {
     background: var(--card);
     border: 1px solid var(--border-light);
     border-radius: 8px;
-    overflow: hidden;
 }
 
 .storage-header {
@@ -1543,6 +1542,7 @@ a.user-dropdown-item {
     padding: 12px 16px;
     background: rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid var(--border-light);
+    border-radius: 8px 8px 0 0;
 }
 
 .storage-search-wrapper {
@@ -1637,7 +1637,7 @@ a.user-dropdown-item {
     padding: 12px;
     max-height: 400px;
     overflow-y: auto;
-    overflow-x: visible;
+    overflow-x: hidden;
 }
 
 .storage-grid::-webkit-scrollbar {
@@ -1801,6 +1801,44 @@ a.user-dropdown-item {
 
 .storage-item-tooltip-value.amount {
     color: var(--accent);
+}
+
+/* Global Storage Tooltip (fixed positioning for overflow issues) */
+.global-storage-tooltip {
+    position: fixed;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    z-index: 99999;
+    pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.global-storage-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.global-storage-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border);
+}
+
+.global-storage-tooltip.below::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: var(--border);
 }
 
 .storage-item-tooltip-id {
