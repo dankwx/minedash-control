@@ -1564,7 +1564,7 @@ a.user-dropdown-item {
 
 .storage-search {
     width: 100%;
-    padding: 8px 12px 8px 38px;
+    padding: 8px 44px 8px 38px;
     background: var(--background);
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -1582,6 +1582,39 @@ a.user-dropdown-item {
 
 .storage-search::placeholder {
     color: var(--muted-foreground);
+}
+
+.storage-refresh-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-foreground);
+    transition: all 0.2s ease;
+}
+
+.storage-refresh-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(74, 222, 128, 0.1);
+}
+
+.storage-refresh-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.storage-refresh-btn.spinning svg {
+    animation: spin 0.5s ease-in-out;
 }
 
 .storage-info {

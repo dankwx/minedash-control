@@ -1249,7 +1249,18 @@ function formatStorageNumber(num) {
 
 function initStorageSearch() {
     const searchInput = document.getElementById('storageSearch');
+    const refreshBtn = document.getElementById('storageRefreshBtn');
+    
     if (!searchInput) return;
+    
+    // Refresh button click handler
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.classList.add('spinning');
+            await loadStorageItems();
+            setTimeout(() => refreshBtn.classList.remove('spinning'), 300);
+        });
+    }
     
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
@@ -1291,4 +1302,3 @@ setInterval(updateDateTime, 60000);
 setInterval(updateSystemMetrics, 2000);
 setInterval(loadDiscordMembers, 30000); // Atualiza membros a cada 30 segundos
 setInterval(loadTopPlayers, 15000); // Atualiza top players a cada 15 segundos
-setInterval(loadStorageItems, 10000); // Atualiza storage a cada 10 segundos
