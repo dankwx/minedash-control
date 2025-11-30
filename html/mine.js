@@ -1199,8 +1199,18 @@ function renderStorageItems(items) {
                 <span class="storage-item-amount">${amount}</span>
                 <div class="storage-item-tooltip">
                     <div class="storage-item-tooltip-name">${displayName}</div>
-                    <div class="storage-item-tooltip-id">${itemId}</div>
-                    <div class="storage-item-tooltip-amount">${item.amount.toLocaleString('pt-BR')}x</div>
+                    <div class="storage-item-tooltip-row">
+                        <span class="storage-item-tooltip-label">ID</span>
+                        <span class="storage-item-tooltip-value">${itemId}</span>
+                    </div>
+                    <div class="storage-item-tooltip-row">
+                        <span class="storage-item-tooltip-label">Quantidade</span>
+                        <span class="storage-item-tooltip-value amount">${item.amount.toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div class="storage-item-tooltip-row">
+                        <span class="storage-item-tooltip-label">Mod</span>
+                        <span class="storage-item-tooltip-value">${mod}</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -1247,6 +1257,28 @@ function formatStorageNumber(num) {
     return num.toLocaleString('pt-BR');
 }
 
+function initStorageTooltips() {
+    const storageGrid = document.getElementById('storageGrid');
+    if (!storageGrid) return;
+    
+    storageGrid.addEventListener('mouseover', (e) => {
+        const item = e.target.closest('.storage-item');
+        if (!item) return;
+        
+        const tooltip = item.querySelector('.storage-item-tooltip');
+        if (!tooltip) return;
+        
+        const rect = item.getBoundingClientRect();
+        
+        // If tooltip would go above viewport, show below instead
+        if (rect.top < 100) {
+            tooltip.classList.add('below');
+        } else {
+            tooltip.classList.remove('below');
+        }
+    });
+}
+
 function initStorageSearch() {
     const searchInput = document.getElementById('storageSearch');
     const refreshBtn = document.getElementById('storageRefreshBtn');
@@ -1290,6 +1322,7 @@ initTabs();
 // Initialize storage
 loadStorageItems();
 initStorageSearch();
+initStorageTooltips();
 
 // Initialize
 loadStatus();
