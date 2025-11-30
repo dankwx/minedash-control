@@ -209,6 +209,26 @@
                                             <div class="storage-info">
                                                 <span class="storage-count" id="storageCount">-- itens</span>
                                             </div>
+                                            <!-- Storage Cells Rack Toggle -->
+                                            <button class="storage-cells-toggle" id="storageCellsToggle" title="Ver discos de storage">
+                                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                                    <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                                    <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                                    <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                                </svg>
+                                                <span id="storageCellsUsage">--%</span>
+                                            </button>
+                                        </div>
+                                        <!-- Storage Cells Rack Panel -->
+                                        <div class="storage-cells-rack" id="storageCellsRack">
+                                            <div class="storage-cells-header">
+                                                <span class="storage-cells-title">[ ME STORAGE CELLS ]</span>
+                                                <span class="storage-cells-total" id="storageCellsTotal">-- / -- bytes</span>
+                                            </div>
+                                            <div class="storage-cells-grid" id="storageCellsGrid">
+                                                <div class="storage-cells-loading">Carregando cells...</div>
+                                            </div>
                                         </div>
                                         <div class="storage-grid" id="storageGrid">
                                             <div class="storage-loading">

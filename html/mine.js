@@ -1136,8 +1136,154 @@ function initTabs() {
 // === AE2 Storage System ===
 let allStorageItems = [];
 const AE2_API_URL = 'http://10.150.135.158:3003/api/items';
+const AE2_STORAGE_API_URL = 'http://10.150.135.158:3003/api/storage';
+
+// === Storage Cells Rack ===
+async function loadStorageCells() {
+    const storageCellsGrid = document.getElementById('storageCellsGrid');
+    const storageCellsTotal = document.getElementById('storageCellsTotal');
+    const storageCellsUsage = document.getElementById('storageCellsUsage');
+    
+    try {
+        const response = await fetch(AE2_STORAGE_API_URL);
+        const data = await response.json();
+        
+        if (!data.storage) {
+            throw new Error('Formato de dados inválido');
+        }
+        
+        const storage = data.storage;
+        const cells = storage.cells || [];
+        
+        // Update total display
+        const usedBytes = storage.usedBytes || 0;
+        const totalBytes = storage.totalBytes || 0;
+        const percentUsed = storage.percentUsed || 0;
+        
+        storageCellsTotal.textContent = `${formatBytes(usedBytes)} / ${formatBytes(totalBytes)}`;
+        storageCellsUsage.textContent = `${percentUsed.toFixed(1)}%`;
+        
+        // Update toggle button color based on usage
+        const toggleBtn = document.getElementById('storageCellsToggle');
+        toggleBtn.classList.remove('low', 'medium', 'high', 'critical');
+        toggleBtn.classList.add(getUsageClass(percentUsed));
+        
+        if (cells.length === 0) {
+            storageCellsGrid.innerHTML = '<div class="storage-cells-empty">Nenhuma storage cell encontrada</div>';
+            return;
+        }
+        
+        // Render cells
+        storageCellsGrid.innerHTML = cells.map((cell, index) => {
+            const cellName = cell.name?.name || 'Unknown Cell';
+            const displayName = formatCellName(cellName);
+            const usedBytes = cell.usedBytes || 0;
+            const totalBytes = cell.totalBytes || 4096; // Default to 4k if not set
+            
+            // Calculate percentage based on bytes
+            let percent = 0;
+            if (totalBytes > 0) {
+                percent = (usedBytes / totalBytes) * 100;
+            } else if (usedBytes > 0) {
+                // If totalBytes is 0 but usedBytes > 0, estimate based on cell type
+                const cellCapacity = getCellCapacity(cellName);
+                percent = (usedBytes / cellCapacity) * 100;
+            }
+            
+            const usageClass = getUsageClass(percent);
+            
+            // Parse mod and item for texture
+            const [mod, itemName] = cellName.split(':');
+            const textureUrl = `/textures/${mod}/${itemName}.png`;
+            
+            return `
+                <div class="storage-cell" title="${cellName}">
+                    <img class="storage-cell-icon" 
+                         src="${textureUrl}" 
+                         alt="${displayName}"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <div class="storage-cell-icon-fallback" style="display:none;">📦</div>
+                    <div class="storage-cell-info">
+                        <div class="storage-cell-name">${displayName}</div>
+                        <div class="storage-cell-bar-container">
+                            <div class="storage-cell-bar ${usageClass}" style="width: ${Math.min(percent, 100)}%"></div>
+                        </div>
+                        <div class="storage-cell-stats">
+                            <span class="storage-cell-percent ${usageClass}">${percent.toFixed(1)}%</span>
+                            <span class="storage-cell-bytes">${formatBytes(usedBytes)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Erro ao carregar storage cells:', error);
+        storageCellsGrid.innerHTML = `<div class="storage-cells-error">❌ Erro: ${error.message}</div>`;
+        storageCellsUsage.textContent = '--';
+    }
+}
+
+function formatCellName(name) {
+    // Convert "ae2:item_storage_cell_4k" to "4K Storage Cell"
+    const match = name.match(/(\d+)k/i);
+    if (match) {
+        return `${match[1]}K Cell`;
+    }
+    // Fallback: extract last part and format
+    const parts = name.split(':');
+    const itemPart = parts[parts.length - 1];
+    return itemPart
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .substring(0, 20);
+}
+
+function getCellCapacity(cellName) {
+    // Return approximate byte capacity based on cell type
+    if (cellName.includes('256k')) return 262144;
+    if (cellName.includes('64k')) return 65536;
+    if (cellName.includes('16k')) return 16384;
+    if (cellName.includes('4k')) return 4096;
+    if (cellName.includes('1k')) return 1024;
+    return 4096; // Default
+}
+
+function formatBytes(bytes) {
+    if (bytes >= 1048576) {
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    } else if (bytes >= 1024) {
+        return (bytes / 1024).toFixed(1) + ' KB';
+    }
+    return bytes + ' B';
+}
+
+function getUsageClass(percent) {
+    if (percent >= 90) return 'critical';
+    if (percent >= 70) return 'high';
+    if (percent >= 40) return 'medium';
+    return 'low';
+}
+
+function initStorageCellsRack() {
+    const toggleBtn = document.getElementById('storageCellsToggle');
+    const rackPanel = document.getElementById('storageCellsRack');
+    
+    if (!toggleBtn || !rackPanel) return;
+    
+    toggleBtn.addEventListener('click', () => {
+        const isActive = rackPanel.classList.toggle('active');
+        toggleBtn.classList.toggle('active', isActive);
+        
+        // Load cells when opening
+        if (isActive) {
+            loadStorageCells();
+        }
+    });
+}
 
 async function loadStorageItems() {
+
     const storageGrid = document.getElementById('storageGrid');
     const storageCount = document.getElementById('storageCount');
     
@@ -1317,7 +1463,10 @@ function initStorageSearch() {
     if (refreshBtn) {
         refreshBtn.addEventListener('click', async () => {
             refreshBtn.classList.add('spinning');
-            await loadStorageItems();
+            await Promise.all([
+                loadStorageItems(),
+                loadStorageCells()
+            ]);
             setTimeout(() => refreshBtn.classList.remove('spinning'), 300);
         });
     }
@@ -1351,6 +1500,8 @@ initTabs();
 loadStorageItems();
 initStorageSearch();
 initStorageTooltips();
+initStorageCellsRack();
+loadStorageCells(); // Load initial data for the toggle button
 
 // Initialize
 loadStatus();
