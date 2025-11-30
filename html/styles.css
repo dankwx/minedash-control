@@ -50,6 +50,19 @@ body {
     width: 100%;
 }
 
+/* Responsividade para telas menores que 1440p */
+@media (max-height: 900px) {
+    .main-content {
+        gap: 2rem;
+    }
+}
+
+@media (max-height: 768px) {
+    .main-content {
+        gap: 1.5rem;
+    }
+}
+
 /* ============================================
    TITLE - Elegant Serif Style
    ============================================ */
@@ -71,6 +84,18 @@ h1 {
     }
 }
 
+@media (max-height: 900px) and (min-width: 768px) {
+    h1 {
+        font-size: 3rem;
+    }
+}
+
+@media (max-height: 768px) and (min-width: 768px) {
+    h1 {
+        font-size: 2.5rem;
+    }
+}
+
 /* ============================================
    PCS STATUS GRID
    ============================================ */
@@ -81,6 +106,20 @@ h1 {
     padding: 1.5rem;
     background: var(--card);
     border: 1px solid var(--border-light);
+}
+
+@media (max-height: 900px) {
+    .pcs-container {
+        gap: 1rem;
+        padding: 1rem;
+    }
+}
+
+@media (max-height: 768px) {
+    .pcs-container {
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -156,6 +195,20 @@ h1 {
     .image-container {
         width: 320px;
         height: 320px;
+    }
+}
+
+@media (max-height: 900px) and (min-width: 768px) {
+    .image-container {
+        width: 260px;
+        height: 260px;
+    }
+}
+
+@media (max-height: 768px) and (min-width: 768px) {
+    .image-container {
+        width: 220px;
+        height: 220px;
     }
 }
 
@@ -600,6 +653,18 @@ nav a:hover {
     width: 100%;
     padding: 24px 0;
     z-index: 100;
+}
+
+@media (max-height: 900px) {
+    .user-profile-container {
+        padding: 16px 0;
+    }
+}
+
+@media (max-height: 768px) {
+    .user-profile-container {
+        padding: 12px 0;
+    }
 }
 
 .user-profile {
