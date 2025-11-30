@@ -1179,6 +1179,8 @@ async function loadStorageCells() {
             const displayName = formatCellName(cellName);
             const usedBytes = cell.usedBytes || 0;
             const totalBytes = cell.totalBytes || 4096; // Default to 4k if not set
+            const usedTypes = cell.usedTypes || 0;
+            const totalTypes = cell.totalTypes || 63;
             
             // Calculate percentage based on bytes
             let percent = 0;
@@ -1210,6 +1212,7 @@ async function loadStorageCells() {
                         </div>
                         <div class="storage-cell-stats">
                             <span class="storage-cell-percent ${usageClass}">${percent.toFixed(1)}%</span>
+                            <span class="storage-cell-types">${usedTypes}/${totalTypes} tipos</span>
                             <span class="storage-cell-bytes">${formatBytes(usedBytes)}</span>
                         </div>
                     </div>

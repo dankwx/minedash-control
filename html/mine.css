@@ -2384,6 +2384,13 @@ a.user-dropdown-item {
     color: #f87171;
 }
 
+.storage-cell-types {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    opacity: 0.8;
+}
+
 .storage-cell-bytes {
     font-family: 'Geist Mono', monospace;
     font-size: 10px;
