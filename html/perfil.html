@@ -318,6 +318,237 @@
         }
 
         /* ============================================
+           LAST.FM SECTION
+           ============================================ */
+        .lastfm-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .lastfm-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .lastfm-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .lastfm-icon {
+            width: 16px;
+            height: 16px;
+            fill: #d51007;
+        }
+
+        .lastfm-username {
+            font-size: 10px;
+            color: var(--muted-foreground);
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .lastfm-username a {
+            color: #d51007;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .lastfm-username a:hover {
+            opacity: 0.8;
+        }
+
+        .lastfm-unavailable {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border-light);
+            border-radius: 4px;
+            color: var(--muted-foreground);
+            font-size: 11px;
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .lastfm-unavailable-icon {
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        .lastfm-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 1.5rem;
+            color: var(--muted-foreground);
+            font-size: 11px;
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .lastfm-loading .loading-spinner {
+            width: 16px;
+            height: 16px;
+        }
+
+        .lastfm-content {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .lastfm-now-playing {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem;
+            background: rgba(213, 16, 7, 0.05);
+            border: 1px solid rgba(213, 16, 7, 0.2);
+            border-radius: 4px;
+        }
+
+        .lastfm-album-art {
+            width: 48px;
+            height: 48px;
+            border-radius: 4px;
+            background: var(--border-light);
+            flex-shrink: 0;
+        }
+
+        .lastfm-track-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lastfm-track-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--foreground);
+            font-family: 'Geist Mono', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lastfm-artist-name {
+            font-size: 11px;
+            color: var(--muted-foreground);
+            font-family: 'Geist Mono', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lastfm-playing-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9px;
+            color: #d51007;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Geist Mono', monospace;
+            flex-shrink: 0;
+        }
+
+        .lastfm-playing-dot {
+            width: 6px;
+            height: 6px;
+            background: #d51007;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .lastfm-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .lastfm-stat-card {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+        }
+
+        .lastfm-stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--foreground);
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .lastfm-stat-label {
+            font-size: 9px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Geist Mono', monospace;
+            margin-top: 2px;
+        }
+
+        .lastfm-top-artists {
+            margin-top: 0.5rem;
+        }
+
+        .lastfm-top-title {
+            font-size: 9px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Geist Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        .lastfm-artists-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .lastfm-artist-tag {
+            font-size: 10px;
+            color: var(--foreground);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .lastfm-artist-tag .plays {
+            color: var(--muted-foreground);
+            font-size: 9px;
+            margin-left: 4px;
+        }
+
+        .lastfm-error {
+            padding: 1rem;
+            background: rgba(255, 100, 100, 0.05);
+            border: 1px solid rgba(255, 100, 100, 0.2);
+            border-radius: 4px;
+            color: var(--muted-foreground);
+            font-size: 11px;
+            font-family: 'Geist Mono', monospace;
+            text-align: center;
+        }
+
+        /* ============================================
            RESPONSIVE
            ============================================ */
         @media (max-width: 768px) {
@@ -413,6 +644,25 @@
                     <div class="profile-field">
                         <span class="profile-field-label">Status Discord</span>
                         <span class="profile-field-value" id="fieldStatus">-</span>
+                    </div>
+                </div>
+
+                <!-- Last.fm Section -->
+                <div class="lastfm-section" id="lastfmSection">
+                    <div class="lastfm-header">
+                        <div class="lastfm-title">
+                            <svg class="lastfm-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10.584 17.21l-.88-2.392s-1.43 1.594-3.573 1.594c-1.897 0-3.244-1.649-3.244-4.288 0-3.381 1.704-4.591 3.381-4.591 2.42 0 3.189 1.567 3.849 3.574l.88 2.749c.88 2.666 2.529 4.81 7.285 4.81 3.409 0 5.718-1.044 5.718-3.793 0-2.227-1.265-3.381-3.63-3.931l-1.758-.385c-1.21-.275-1.567-.77-1.567-1.595 0-.934.742-1.484 1.952-1.484 1.32 0 2.034.495 2.144 1.677l2.749-.33c-.22-2.474-1.924-3.492-4.729-3.492-2.474 0-4.893.935-4.893 3.932 0 1.87.907 3.051 3.189 3.601l1.87.44c1.402.33 1.869.907 1.869 1.704 0 1.017-.99 1.43-2.86 1.43-2.776 0-3.931-1.457-4.591-3.464l-.907-2.749c-1.155-3.573-2.997-4.893-6.653-4.893C2.144 5.333 0 7.89 0 12.233c0 4.18 2.144 6.434 5.993 6.434 3.106 0 4.591-1.457 4.591-1.457z"/>
+                            </svg>
+                            <span>O que anda ouvindo</span>
+                        </div>
+                        <div class="lastfm-username" id="lastfmUsername"></div>
+                    </div>
+                    <div id="lastfmContent">
+                        <div class="lastfm-loading">
+                            <div class="loading-spinner"></div>
+                            <span>Carregando Last.fm...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -569,7 +819,10 @@
             // Update fields
             fieldUserName.textContent = member.displayName || member.name;
             fieldUserId.textContent = member.id;
-            fieldStatus.innerHTML = `<span style="color: ${isOnline ? 'var(--accent)' : 'var(--muted-foreground)'};">${member.status || 'offline'}</span>`;
+            fieldStatus.innerHTML = `<span style="color: ${isOnline ? 'var(--accent)' : 'var(--muted-foreground)'}">${member.status || 'offline'}</span>`;
+            
+            // Render Last.fm section
+            renderLastFmSection(member.id);
         }
 
         // Toggle dropdown
@@ -593,6 +846,171 @@
         document.addEventListener('click', () => {
             userDropdown.classList.remove('active');
         });
+
+        // === Last.fm Configuration ===
+        const LASTFM_API_KEY = '71cbcac613a06f0ea7e289635b234578';
+        
+        // Mapeamento Discord ID -> Last.fm Username
+        const LASTFM_USERS = {
+            '268826484850819072': 'dnkocsh',           // danos
+            '351819031147184139': 'Alycos',            // historia natural
+            '373150815076220948': 'AllaNaroK',         // Koran
+            '715414320078389338': null,                 // lucaspb (não possui)
+            // mhassahrolin não possui
+        };
+
+        // Fetch Last.fm data for a user
+        async function fetchLastFmData(username) {
+            const baseUrl = 'https://ws.audioscrobbler.com/2.0/';
+            
+            try {
+                // Fetch recent tracks (includes now playing)
+                const recentTracksUrl = `${baseUrl}?method=user.getrecenttracks&user=${username}&api_key=${LASTFM_API_KEY}&format=json&limit=1`;
+                const recentRes = await fetch(recentTracksUrl);
+                const recentData = await recentRes.json();
+                
+                // Fetch user info (for total scrobbles)
+                const userInfoUrl = `${baseUrl}?method=user.getinfo&user=${username}&api_key=${LASTFM_API_KEY}&format=json`;
+                const userRes = await fetch(userInfoUrl);
+                const userData = await userRes.json();
+                
+                // Fetch top artists
+                const topArtistsUrl = `${baseUrl}?method=user.gettopartists&user=${username}&api_key=${LASTFM_API_KEY}&format=json&limit=5&period=1month`;
+                const artistsRes = await fetch(topArtistsUrl);
+                const artistsData = await artistsRes.json();
+                
+                return {
+                    recentTracks: recentData.recenttracks,
+                    userInfo: userData.user,
+                    topArtists: artistsData.topartists
+                };
+            } catch (error) {
+                console.error('Erro ao buscar dados do Last.fm:', error);
+                return null;
+            }
+        }
+
+        // Render Last.fm section
+        function renderLastFmSection(discordId) {
+            const lastfmContent = document.getElementById('lastfmContent');
+            const lastfmUsername = document.getElementById('lastfmUsername');
+            const lastfmSection = document.getElementById('lastfmSection');
+            
+            const username = LASTFM_USERS[discordId];
+            
+            // Se o usuário não tem Last.fm configurado
+            if (username === null || username === undefined) {
+                lastfmUsername.innerHTML = '';
+                lastfmContent.innerHTML = `
+                    <div class="lastfm-unavailable">
+                        <span class="lastfm-unavailable-icon">🎵</span>
+                        <span>Este membro ainda não conectou sua conta Last.fm</span>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Mostra loading
+            lastfmUsername.innerHTML = `<a href="https://www.last.fm/user/${username}" target="_blank">@${username}</a>`;
+            lastfmContent.innerHTML = `
+                <div class="lastfm-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Carregando Last.fm...</span>
+                </div>
+            `;
+            
+            // Busca os dados
+            fetchLastFmData(username).then(data => {
+                if (!data || !data.userInfo) {
+                    lastfmContent.innerHTML = `
+                        <div class="lastfm-error">
+                            Não foi possível carregar os dados do Last.fm
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '<div class="lastfm-content">';
+                
+                // Verifica se está tocando agora
+                const tracks = data.recentTracks?.track;
+                if (tracks && tracks.length > 0) {
+                    const currentTrack = tracks[0];
+                    const isNowPlaying = currentTrack['@attr']?.nowplaying === 'true';
+                    const albumArt = currentTrack.image?.find(img => img.size === 'medium')?.['#text'] || '';
+                    
+                    if (isNowPlaying) {
+                        html += `
+                            <div class="lastfm-now-playing">
+                                <img src="${albumArt || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"%3E%3Crect width="24" height="24" rx="2"/%3E%3C/svg%3E'}" alt="Album" class="lastfm-album-art">
+                                <div class="lastfm-track-info">
+                                    <div class="lastfm-track-name">${escapeHtml(currentTrack.name)}</div>
+                                    <div class="lastfm-artist-name">${escapeHtml(currentTrack.artist['#text'] || currentTrack.artist)}</div>
+                                </div>
+                                <div class="lastfm-playing-badge">
+                                    <span class="lastfm-playing-dot"></span>
+                                    <span>TOCANDO</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="lastfm-now-playing" style="background: rgba(255,255,255,0.02); border-color: var(--border-light);">
+                                <img src="${albumArt || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"%3E%3Crect width="24" height="24" rx="2"/%3E%3C/svg%3E'}" alt="Album" class="lastfm-album-art">
+                                <div class="lastfm-track-info">
+                                    <div class="lastfm-track-name">${escapeHtml(currentTrack.name)}</div>
+                                    <div class="lastfm-artist-name">${escapeHtml(currentTrack.artist['#text'] || currentTrack.artist)}</div>
+                                </div>
+                                <div class="lastfm-playing-badge" style="color: var(--muted-foreground);">
+                                    <span>ÚLTIMA</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Stats
+                const playcount = parseInt(data.userInfo.playcount || 0).toLocaleString('pt-BR');
+                const artistCount = parseInt(data.userInfo.artist_count || 0).toLocaleString('pt-BR');
+                
+                html += `
+                    <div class="lastfm-stats">
+                        <div class="lastfm-stat-card">
+                            <div class="lastfm-stat-value">${playcount}</div>
+                            <div class="lastfm-stat-label">Scrobbles</div>
+                        </div>
+                        <div class="lastfm-stat-card">
+                            <div class="lastfm-stat-value">${artistCount}</div>
+                            <div class="lastfm-stat-label">Artistas</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Top Artists
+                const topArtists = data.topArtists?.artist;
+                if (topArtists && topArtists.length > 0) {
+                    html += `
+                        <div class="lastfm-top-artists">
+                            <div class="lastfm-top-title">Top Artistas (último mês)</div>
+                            <div class="lastfm-artists-list">
+                    `;
+                    topArtists.forEach(artist => {
+                        html += `<span class="lastfm-artist-tag">${escapeHtml(artist.name)}<span class="plays">${artist.playcount}x</span></span>`;
+                    });
+                    html += '</div></div>';
+                }
+                
+                html += '</div>';
+                lastfmContent.innerHTML = html;
+            });
+        }
+        
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         // Initialize
         async function init() {
