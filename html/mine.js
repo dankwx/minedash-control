@@ -1133,8 +1133,152 @@ function initTabs() {
     });
 }
 
+// === AE2 Storage System ===
+let allStorageItems = [];
+const AE2_API_URL = 'http://10.150.135.158:3003/api/items';
+
+async function loadStorageItems() {
+    const storageGrid = document.getElementById('storageGrid');
+    const storageCount = document.getElementById('storageCount');
+    
+    try {
+        const response = await fetch(AE2_API_URL);
+        const data = await response.json();
+        
+        if (!data.items || !Array.isArray(data.items)) {
+            throw new Error('Formato de dados inválido');
+        }
+        
+        // Sort by amount (descending)
+        allStorageItems = data.items.sort((a, b) => b.amount - a.amount);
+        
+        // Update count
+        const totalItems = allStorageItems.reduce((sum, item) => sum + item.amount, 0);
+        storageCount.textContent = `${allStorageItems.length} tipos · ${formatStorageNumber(totalItems)} itens`;
+        
+        // Render items
+        renderStorageItems(allStorageItems);
+        
+    } catch (error) {
+        console.error('Erro ao carregar storage:', error);
+        storageGrid.innerHTML = `
+            <div class="storage-error">
+                <p>❌ Erro ao carregar itens do AE2</p>
+                <p style="font-size: 11px; margin-top: 8px;">${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+function renderStorageItems(items) {
+    const storageGrid = document.getElementById('storageGrid');
+    
+    if (items.length === 0) {
+        storageGrid.innerHTML = '<div class="storage-empty">Nenhum item encontrado</div>';
+        return;
+    }
+    
+    storageGrid.innerHTML = items.map(item => {
+        const displayName = item.displayName.replace(/^\[|\]$/g, ''); // Remove brackets
+        const itemId = item.name;
+        const amount = formatStorageAmount(item.amount);
+        
+        // Parse mod and item name from itemId (e.g., "minecraft:diamond" -> mod="minecraft", itemName="diamond")
+        const [mod, itemName] = itemId.split(':');
+        const textureUrl = `/textures/${mod}/${itemName}.png`;
+        const fallbackHue = hashStringToHue(mod);
+        
+        return `
+            <div class="storage-item" data-item-id="${itemId}" data-item-name="${displayName.toLowerCase()}">
+                <img class="storage-item-icon" 
+                     src="${textureUrl}" 
+                     alt="${displayName}"
+                     loading="lazy"
+                     onerror="handleTextureError(this, '${mod}', '${itemName}', '${displayName.charAt(0).toUpperCase()}', ${fallbackHue})">
+                <div class="storage-item-fallback" style="display:none;"></div>
+                <span class="storage-item-amount">${amount}</span>
+                <div class="storage-item-tooltip">
+                    <div class="storage-item-tooltip-name">${displayName}</div>
+                    <div class="storage-item-tooltip-id">${itemId}</div>
+                    <div class="storage-item-tooltip-amount">${item.amount.toLocaleString('pt-BR')}x</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Handle texture loading errors with fallback chain
+function handleTextureError(img, mod, itemName, letter, hue) {
+    const fallbackDiv = img.nextElementSibling;
+    
+    // If it's minecraft, try external CDN as second attempt
+    if (mod === 'minecraft' && !img.dataset.triedCdn) {
+        img.dataset.triedCdn = 'true';
+        img.src = `https://minecraft-api.vercel.app/images/items/${itemName}.png`;
+        return;
+    }
+    
+    // Show fallback
+    img.style.display = 'none';
+    fallbackDiv.style.display = 'flex';
+    fallbackDiv.style.background = `linear-gradient(135deg, hsl(${hue}, 40%, 25%) 0%, hsl(${hue}, 50%, 15%) 100%)`;
+    fallbackDiv.style.border = `1px solid hsl(${hue}, 50%, 35%)`;
+    fallbackDiv.textContent = letter;
+}
+
+function hashStringToHue(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash % 360);
+}
+
+function formatStorageAmount(amount) {
+    if (amount >= 1000000) {
+        return (amount / 1000000).toFixed(1) + 'M';
+    } else if (amount >= 1000) {
+        return (amount / 1000).toFixed(1) + 'K';
+    }
+    return amount.toString();
+}
+
+function formatStorageNumber(num) {
+    return num.toLocaleString('pt-BR');
+}
+
+function initStorageSearch() {
+    const searchInput = document.getElementById('storageSearch');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        
+        if (query === '') {
+            renderStorageItems(allStorageItems);
+            return;
+        }
+        
+        const filtered = allStorageItems.filter(item => {
+            const displayName = item.displayName.toLowerCase();
+            const itemId = item.name.toLowerCase();
+            return displayName.includes(query) || itemId.includes(query);
+        });
+        
+        renderStorageItems(filtered);
+        
+        // Update count
+        const storageCount = document.getElementById('storageCount');
+        storageCount.textContent = `${filtered.length} de ${allStorageItems.length} tipos`;
+    });
+}
+
 // Initialize tabs
 initTabs();
+
+// Initialize storage
+loadStorageItems();
+initStorageSearch();
 
 // Initialize
 loadStatus();
@@ -1147,3 +1291,4 @@ setInterval(updateDateTime, 60000);
 setInterval(updateSystemMetrics, 2000);
 setInterval(loadDiscordMembers, 30000); // Atualiza membros a cada 30 segundos
 setInterval(loadTopPlayers, 15000); // Atualiza top players a cada 15 segundos
+setInterval(loadStorageItems, 10000); // Atualiza storage a cada 10 segundos
