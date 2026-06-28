@@ -17,10 +17,17 @@ const DISCORD_SERVER_ID = process.env.DISCORD_SERVER_ID;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const DISCORD_STATUS_CATEGORY_ID = "1437137837471305789"; // Categoria para mostrar jogadores online
 
+// Toggle de confirmação por Discord.
+// true (padrão): o usuário precisa responder "Sim" no Discord para confirmar o login.
+// false: modo fraco — ao escolher o perfil o login é aprovado na hora, sem mensagem no Discord.
+// Defina REQUIRE_DISCORD_CONFIRMATION=false no .env / docker-compose para desativar.
+const REQUIRE_DISCORD_CONFIRMATION = process.env.REQUIRE_DISCORD_CONFIRMATION !== "false";
+
 console.log("🔧 Configurações carregadas:");
 console.log("   Token:", DISCORD_TOKEN ? "✅ Configurado" : "❌ Faltando");
 console.log("   Server ID:", DISCORD_SERVER_ID ? "✅ Configurado" : "❌ Faltando");
 console.log("   Channel ID:", DISCORD_CHANNEL_ID ? "✅ Configurado" : "❌ Faltando");
+console.log("   Confirmação Discord:", REQUIRE_DISCORD_CONFIRMATION ? "✅ Ativada" : "⚠️ Desativada (modo fraco)");
 
 // Habilitar CORS para todas as origens
 app.use((req, res, next) => {
@@ -319,7 +326,27 @@ app.post("/auth/request", async (req, res) => {
     
     // Gerar token único
     const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    
+
+    // Modo fraco: confirmação desativada → aprova o login na hora, sem mensagem no Discord
+    if (!REQUIRE_DISCORD_CONFIRMATION) {
+      pendingAuth[token] = {
+        userId,
+        userName,
+        timestamp: Date.now(),
+        verified: true
+      };
+      console.log(`⚠️ Confirmação desativada — login aprovado direto para ${userName} [${token}]`);
+
+      // Limpar token após 5 minutos (já será consumido pela criação da sessão antes disso)
+      setTimeout(() => {
+        if (pendingAuth[token]) {
+          delete pendingAuth[token];
+        }
+      }, 5 * 60 * 1000);
+
+      return res.json({ success: true, token });
+    }
+
     // Enviar mensagem no canal do Discord PRIMEIRO
     const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
     const userIpDisplay = userIp || "IP desconhecido";

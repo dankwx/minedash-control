@@ -350,7 +350,9 @@
         }
 
         function startAuthCheck() {
-            authCheckInterval = setInterval(async () => {
+            // Checa uma vez na hora (login direto/modo fraco entra instantâneo)
+            // e depois segue verificando a cada 2s enquanto aguarda a confirmação.
+            const doCheck = async () => {
                 try {
                     const response = await fetch('/api/discord/verify-auth', {
                         method: 'POST',
@@ -387,7 +389,10 @@
                 } catch (error) {
                     console.error('Erro ao verificar status:', error);
                 }
-            }, 2000);
+            };
+
+            doCheck(); // primeira verificação imediata
+            authCheckInterval = setInterval(doCheck, 2000);
         }
 
         function cancelAuth() {
