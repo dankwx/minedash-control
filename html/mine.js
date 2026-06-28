@@ -1357,17 +1357,29 @@ function renderStorageItems(items) {
     }).join('');
 }
 
+// Versão do Minecraft do pack (ATM-10 = 1.21.1). Usado no mirror de texturas vanilla.
+const MC_VERSION = '1.21.1';
+
 // Handle texture loading errors with fallback chain
 function handleTextureError(img, mod, itemName, letter, hue) {
     const fallbackDiv = img.nextElementSibling;
-    
-    // If it's minecraft, try external CDN as second attempt
-    if (mod === 'minecraft' && !img.dataset.triedCdn) {
-        img.dataset.triedCdn = 'true';
-        img.src = `https://minecraft-api.vercel.app/images/items/${itemName}.png`;
-        return;
+
+    // Para itens vanilla: tenta o mirror de assets (cobre tanto item/ quanto block/),
+    // já que a extração local nem sempre tem todas as texturas vanilla.
+    if (mod === 'minecraft') {
+        const step = parseInt(img.dataset.fbStep || '0', 10);
+        const base = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/${MC_VERSION}/assets/minecraft/textures`;
+        const sources = [
+            `${base}/item/${itemName}.png`,
+            `${base}/block/${itemName}.png`,
+        ];
+        if (step < sources.length) {
+            img.dataset.fbStep = String(step + 1);
+            img.src = sources[step];
+            return;
+        }
     }
-    
+
     // Show fallback
     img.style.display = 'none';
     fallbackDiv.style.display = 'flex';
